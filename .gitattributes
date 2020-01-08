@@ -1,2 +1,0 @@
-release/KmerGO_for_linux_x64/KmerGO filter=lfs diff=lfs merge=lfs -text
-release/KmerGO_for_windows_x64/KmerGO.exe filter=lfs diff=lfs merge=lfs -text
