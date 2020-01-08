@@ -14,17 +14,19 @@ KmerGO can be run directly on Windows and Linux operating systems, without extra
 
 KmerGO has been tested on Windows 7/8/10 (64 bits).
 
-And you can find the Windows version of KmerGO from folder ./release/KmerGO_for_windows_x64.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.3.0/KmerGO_for_windows_x64.zip) to download the Windows version of KmerGO.
 
-Double-click **KmerGO.exe** to run it.
+Decompress the file and double-click **KmerGO.exe** to run it.
 
 ### Running on Linux
 
 KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15 (64 bits).
 
-And you can find the Linux version of KmerGO from folder ./release/KmerGO_for_linux_x64.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.3.0/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
 
-Enter the software path and type these commands (Preparation for the first run):
+Decompress the file and enter the software path.
+
+Type these commands (Preparation for the first run):
 
 > sudo chmod +x KmerGO  
 > sudo chmod +x ./bin/*
