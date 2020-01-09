@@ -125,7 +125,11 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 
 ## Test data
 
-We prepared two groups of FASTA format files which are stored on "test_data/group_A" and "test_data/group_B" for END-TO-END testing. And we also prepared one testing matrix which is stored on "test_data/test_filtering" for running filtering operation independently.
+Test data can be found in "release" section. You can also click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.3.0/test_data.zip) to download it.
+
+We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for END-TO-END testing. 
+
+And we also prepared one testing matrix which is stored on "test_filtering" for running filtering operation independently.
 
 ## Contacts and bug reports
 
