@@ -61,7 +61,7 @@ As shown in the following Gif file, after selecting the path to store the mergin
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_union.gif)
 
-**4. Specific-Kmer Identification**
+**4. Specific-Kmer identification**
 
 All the text boxes are filled automatically according to last step’s input, and user can directly run this step with clicking the "Start". And the threshold value for ASS, p-value can be changed in the text boxes.
 
@@ -141,4 +141,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 20-Dec-2019
+Last update: 9-Jan-2020
