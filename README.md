@@ -14,7 +14,7 @@ KmerGO can be run directly on Windows and Linux operating systems, without extra
 
 KmerGO has been tested on Windows 7/8/10 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.0/KmerGO_for_windows_x64.zip) to download the Windows version of KmerGO.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/KmerGO_for_windows_x64.zip) to download the Windows version of KmerGO.
 
 Decompress the file and run the "Install.bat" with the highest authority if you first use KmerGO.
 
@@ -24,7 +24,7 @@ After that, you can double-click **KmerGO.exe** to run it.
 
 KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.0/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
 
 Decompress the file and enter the software path.
 
@@ -111,9 +111,9 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 
 ## Test data
 
-Test data can be found in "release" section. You can also click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.0/test_data.zip) to download it.
+Test data can be found in "release" section. You can also click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/test_data.zip) to download it.
 
-We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for END-TO-END testing. 
+We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for One-Click testing. 
 
 And we also prepared one testing matrix which is stored on "test_filtering" for running filtering operation independently.
 
@@ -127,4 +127,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 9-Jan-2020
+Last update: 14-Jan-2020

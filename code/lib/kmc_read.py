@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.5
-# modification date: 2020/1/10
+# version: v2.6
+# modification date: 2020/1/14
 
 import os
 import subprocess
@@ -26,9 +26,7 @@ class KMC_Thread(threading.Thread):
         if self.status == -1:
             self.loginfo = 'The system is not supported.'
         elif self.status == -2:
-            self.loginfo = 'The selected folder is empty.'
-        elif self.status == -3:
-            self.loginfo = 'Some File formats are not supported.'
+            self.loginfo = 'There are no FASTA/Q files under the selected folder.'
         elif self.status == -999:
             self.loginfo = 'There are some errors when KMC is running.'
 
@@ -60,18 +58,19 @@ class KMC_Thread(threading.Thread):
             for dir, folder, file in os.walk(work_dir[j]):
                 if dir == work_dir[j]:
                     flist[j] = file
-            if len(flist[j]) == -1:
-                return -2  # empty directory
             flist[j].sort()
-            for i in range(len(flist[j])):
-                suffix = flist[j][i][flist[j][i].find('.'):]
+            for i in list(flist[j]):
+                suffix = i[i.find('.'):]
                 if suffix.lower() in FASTA_suffix:
                     typelist.append(' -fm ')
+                    flist[j][flist[j].index(i)] = os.path.join(work_dir[j], i)
                 elif suffix.lower() in FASTQ_suffix:
                     typelist.append(' -fq ')
+                    flist[j][flist[j].index(i)] = os.path.join(work_dir[j], i)
                 else:
-                    return -3  # format can not be recognized
-                flist[j][i] = os.path.join(work_dir[j], flist[j][i])
+                    flist[j].remove(i)
+            if len(flist[j]) == 0:
+                return -2  # no files in this directory
 
         for j in range(2):  # A/B group
             countings = 0

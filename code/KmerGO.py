@@ -1,20 +1,20 @@
 # coding = utf-8
 # author: QiChen
-# version: v1.4.0
-# modification date: 2020/1/10
+# version: v1.4.1
+# modification date: 2020/1/14
 
 import sys, os, shutil
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 import platform, ctypes
 import multiprocessing
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from qt import MainWindow
 from lib import kmc_read, kmer_matrix, kmer_features, sequence_assembly
 from lib import projectlist_file as plf
 
 tool_name = 'KmerGO'
-project_version = 'V1.4.0'
+project_version = 'V1.4.1'
 system_platform = platform.system()
 
 class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
@@ -50,21 +50,28 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_n_Value_Edit.textChanged.connect(self.ASS_n_Value_Edit_TextChange)
         self.new_window.GroupA_Number_Edit.textChanged.connect(self.GroupA_Number_Edit_TextChange)
         self.new_window.GroupB_Number_Edit.textChanged.connect(self.GroupB_Number_Edit_TextChange)
-        self.new_window.K_Value_Edit.setToolTip('K-mer length\n(K from 1 to 256; default: 40)')
+        self.new_window.K_Value_Edit.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
+        self.new_window.K_Value_Label.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
         self.new_window.CiValue_Label.setToolTip('minimal K-mer occurring times\n(default: 2)')
         self.new_window.CsValue_Label.setToolTip('maximal K-mer occurring times\n(default: 65535)')
         self.new_window.CI_Value_Edit.setToolTip('minimal K-mer occurring times\n(default: 2)')
         self.new_window.CS_Value_Edit.setToolTip('maximal K-mer occurring times\n(default: 65535)')
         self.new_window.Process_Number_Edit.setToolTip('number of processes\n(default: 24)')
+        self.new_window.Process_Number_Label.setToolTip('number of processes\n(default: 24)')
         self.new_window.ASS_l_Value_Edit.setToolTip('logical features ASS value\nASS=(TP/P+TN/N)/2\n(default: 0.8)')
+        self.new_window.ASS_l_Value_Label.setToolTip('logical features ASS value\nASS=(TP/P+TN/N)/2\n(default: 0.8)')
         self.new_window.P_Value_Edit.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
+        self.new_window.P_Value_Label.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
         self.new_window.ASS_n_Value_Edit.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
+        self.new_window.ASS_n_Value_Label.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
         self.new_window.GroupA_Number_Edit.setToolTip('the number of sample in group A\n(default: 1)')
+        self.new_window.GroupA_Number_Label.setToolTip('the number of sample in group A\n(default: 1)')
         self.new_window.GroupB_Number_Edit.setToolTip('the number of sample in group B\n(default: 1)')
+        self.new_window.GroupB_Number_Label.setToolTip('the number of sample in group B\n(default: 1)')
         self.setWindowTitle(tool_name + ' ' + project_version)
         self.setFixedSize(self.width(), self.height())
         # initialization
-        self.ReadConfiguration()
+        self.StepByStepRunningButton_Clicked()
 
     def closeEvent(self, event):
         sys.exit(app.exec_())
@@ -136,6 +143,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.OneClickRunningButton.setText('*One Click Running')
         self.new_window.StepByStepRunningButton.setText('Step By Step Running')
         self.new_window.KA_GO_Button.setText('One-Click Start')
+        self.new_window.KA_GO_Button.setGeometry(QtCore.QRect(170, 75, 121, 31))
+        self.new_window.KA_GO_Button.setFont(QtGui.QFont("Arial", 11, QtGui.QFont.Bold))
         self.projectfile.KMC_OK = False
         self.projectfile.GM_OK = False
         self.projectfile.GF_OK = False
@@ -180,6 +189,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.OneClickRunningButton.setText('One Click Running')
         self.new_window.StepByStepRunningButton.setText('*Step By Step Running')
         self.new_window.KA_GO_Button.setText('Start')
+        self.new_window.KA_GO_Button.setGeometry(QtCore.QRect(350, 80, 101, 21))
+        self.new_window.KA_GO_Button.setFont(QtGui.QFont("Arial", 10, QtGui.QFont.Normal))
         self.projectfile.KMC_OK = False
         self.projectfile.GM_OK = False
         self.projectfile.GF_OK = False
@@ -203,8 +214,13 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             getdir = getdir.replace('/', '\\')
         elif system_platform == 'Linux':
             getdir = getdir.replace('\\', '/')
+        flist = os.listdir(getdir)
+        for seq in list(flist):
+            suffix = seq[seq.find('.'):]
+            if suffix.lower() not in kmc_read.FASTA_suffix and suffix.lower() not in kmc_read.FASTQ_suffix:
+                flist.remove(seq)
         self.projectfile.FASTAQ_path_A = getdir
-        self.projectfile.GroupA_Number = len(os.listdir(getdir))
+        self.projectfile.GroupA_Number = len(flist)
         self.new_window.GroupA_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_A)
         self.new_window.GroupA_Number_Edit.setText(str(self.projectfile.GroupA_Number))
 
@@ -216,8 +232,13 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             getdir = getdir.replace('/', '\\')
         elif system_platform == 'Linux':
             getdir = getdir.replace('\\', '/')
+        flist = os.listdir(getdir)
+        for seq in list(flist):
+            suffix = seq[seq.find('.'):]
+            if suffix.lower() not in kmc_read.FASTA_suffix and suffix.lower() not in kmc_read.FASTQ_suffix:
+                flist.remove(seq)
         self.projectfile.FASTAQ_path_B = getdir
-        self.projectfile.GroupB_Number = len(os.listdir(getdir))
+        self.projectfile.GroupB_Number = len(flist)
         self.new_window.GroupB_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_B)
         self.new_window.GroupB_Number_Edit.setText(str(self.projectfile.GroupB_Number))
 
