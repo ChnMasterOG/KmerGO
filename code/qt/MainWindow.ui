@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>482</width>
-    <height>599</height>
+    <height>611</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>60</y>
       <width>461</width>
       <height>141</height>
      </rect>
@@ -234,7 +234,7 @@
      </property>
      <property name="font">
       <font>
-       <family>宋体</family>
+       <family>Arial</family>
        <pointsize>10</pointsize>
        <weight>50</weight>
        <bold>false</bold>
@@ -333,7 +333,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>200</y>
+      <y>210</y>
       <width>461</width>
       <height>111</height>
      </rect>
@@ -501,7 +501,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>320</y>
+      <y>330</y>
       <width>461</width>
       <height>141</height>
      </rect>
@@ -837,7 +837,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>470</y>
+      <y>480</y>
       <width>461</width>
       <height>121</height>
      </rect>
@@ -959,67 +959,46 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="NewProjectButton">
+   <widget class="QPushButton" name="OneClickRunningButton">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>151</width>
-      <height>31</height>
+      <width>221</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>10</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Create a new Project</string>
+     <string>One Click Running</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="OpenProjectButton">
+   <widget class="QPushButton" name="StepByStepRunningButton">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>240</x>
       <y>10</y>
-      <width>141</width>
-      <height>31</height>
+      <width>231</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>10</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Open a project</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="SaveProjectButton">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>10</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Save this project</string>
+     <string>*Step By Step Running</string>
     </property>
    </widget>
   </widget>
@@ -1040,9 +1019,8 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>NewProjectButton</tabstop>
-  <tabstop>OpenProjectButton</tabstop>
-  <tabstop>SaveProjectButton</tabstop>
+  <tabstop>OneClickRunningButton</tabstop>
+  <tabstop>StepByStepRunningButton</tabstop>
   <tabstop>GroupA_FASTAQ_Path_Edit</tabstop>
   <tabstop>Open_GroupA_FASTAQ_Button</tabstop>
   <tabstop>GroupB_FASTAQ_Path_Edit</tabstop>

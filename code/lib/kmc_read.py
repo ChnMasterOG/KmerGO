@@ -1,9 +1,10 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.0
-# modification date: 2019/10/18
+# version: v2.5
+# modification date: 2020/1/10
 
 import os
+import subprocess
 import threading
 import platform
 
@@ -80,19 +81,22 @@ class KMC_Thread(threading.Thread):
                 cmd = kmc_command + ' -k' + str(k_value) + ' -ci' + str(ci_value) + ' -cs' + str(cs_value)\
                       + typelist[i] + flist[j][i] + ' ' + os.path.join(work_dir[j], key[j] + str(countings))\
                       + ' ' + work_dir[j]
-                r = os.system(cmd)
+                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
                 if r != 0:
                     return 0 / 0
                 cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir[j], key[j] + str(countings))\
                       + ' sort ' + os.path.join(work_dir[j], key[j] + str(countings) + '_sort')
-                r = os.system(cmd)
+                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
                 if r != 0:
                     return 0 / 0
                 cmd = kmc_dump_command + ' -cs' + str(cs_value) + ' '\
                       + os.path.join(work_dir[j], key[j] + str(countings) + '_sort') + ' '\
                       + os.path.join(output_dir, key[j] + str(countings) + '.txt') + ' '\
                       + os.path.join(output_dir, key[j]+ str(countings) + '_beacon.txt')
-                r = os.system(cmd)
+                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
                 if r != 0:
                     return 0 / 0
                 os.remove(os.path.join(work_dir[j], key[j] + str(countings) + '.kmc_pre'))

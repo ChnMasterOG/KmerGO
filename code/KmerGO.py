@@ -1,19 +1,20 @@
 # coding = utf-8
 # author: QiChen
-# version: v1.3.0
-# modification date: 2019/12/10
+# version: v1.4.0
+# modification date: 2020/1/10
 
 import sys, os, shutil
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 import platform, ctypes
+import multiprocessing
 from PyQt5 import QtWidgets, QtCore
 from qt import MainWindow
 from lib import kmc_read, kmer_matrix, kmer_features, sequence_assembly
 from lib import projectlist_file as plf
 
 tool_name = 'KmerGO'
-project_version = 'V1.3.0'
+project_version = 'V1.4.0'
 system_platform = platform.system()
 
 class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
@@ -24,12 +25,13 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.projectfile = plf.ProjectList()
         self.project_dir = ''
         self.GO_flag = False
+        self.mode = 1                   # 0-OneClick 1-StepByStep
+        self.static_mode = self.mode    # 0-OneClick 1-StepByStep
         # window
         self.new_window = MainWindow.Ui_MainWindow()
         self.new_window.setupUi(self)
-        self.new_window.NewProjectButton.clicked.connect(self.NewProject_Clicked)
-        self.new_window.OpenProjectButton.clicked.connect(self.OpenProject_Clicked)
-        self.new_window.SaveProjectButton.clicked.connect(self.SaveProject_Clicked)
+        self.new_window.OneClickRunningButton.clicked.connect(self.OneClickRunningButton_Clicked)
+        self.new_window.StepByStepRunningButton.clicked.connect(self.StepByStepRunningButton_Clicked)
         self.new_window.Open_GroupA_FASTAQ_Button.clicked.connect(self.Open_GroupA_FASTAQ_Button_Clicked)
         self.new_window.Open_GroupB_FASTAQ_Button.clicked.connect(self.Open_GroupB_FASTAQ_Button_Clicked)
         self.new_window.KMC_Result_Path_Button.clicked.connect(self.KMC_Result_Path_Button_Clicked)
@@ -49,8 +51,10 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GroupA_Number_Edit.textChanged.connect(self.GroupA_Number_Edit_TextChange)
         self.new_window.GroupB_Number_Edit.textChanged.connect(self.GroupB_Number_Edit_TextChange)
         self.new_window.K_Value_Edit.setToolTip('K-mer length\n(K from 1 to 256; default: 40)')
-        self.new_window.CI_Value_Edit.setToolTip('exclude K-mers occurring less than <value> times\n(default: 2)')
-        self.new_window.CS_Value_Edit.setToolTip('maximal value of a counter\n(default: 65535)')
+        self.new_window.CiValue_Label.setToolTip('minimal K-mer occurring times\n(default: 2)')
+        self.new_window.CsValue_Label.setToolTip('maximal K-mer occurring times\n(default: 65535)')
+        self.new_window.CI_Value_Edit.setToolTip('minimal K-mer occurring times\n(default: 2)')
+        self.new_window.CS_Value_Edit.setToolTip('maximal K-mer occurring times\n(default: 65535)')
         self.new_window.Process_Number_Edit.setToolTip('number of processes\n(default: 24)')
         self.new_window.ASS_l_Value_Edit.setToolTip('logical features ASS value\nASS=(TP/P+TN/N)/2\n(default: 0.8)')
         self.new_window.P_Value_Edit.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
@@ -59,6 +63,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GroupB_Number_Edit.setToolTip('the number of sample in group B\n(default: 1)')
         self.setWindowTitle(tool_name + ' ' + project_version)
         self.setFixedSize(self.width(), self.height())
+        # initialization
+        self.ReadConfiguration()
 
     def closeEvent(self, event):
         sys.exit(app.exec_())
@@ -123,46 +129,71 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GroupA_Number_Edit.setText(str(self.projectfile.GroupA_Number))
         self.new_window.GroupB_Number_Edit.setText(str(self.projectfile.GroupB_Number))
 
-    def NewProject_Clicked(self):
-        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of a new project', './')
+    def OneClickRunningButton_Clicked(self):
+        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select a folder for one-click runing.', './')
         if getdir == '': return
+        self.static_mode = self.mode = 0
+        self.new_window.OneClickRunningButton.setText('*One Click Running')
+        self.new_window.StepByStepRunningButton.setText('Step By Step Running')
+        self.new_window.KA_GO_Button.setText('One-Click Start')
+        self.projectfile.KMC_OK = False
+        self.projectfile.GM_OK = False
+        self.projectfile.GF_OK = False
+        self.projectfile.KA_OK = False
+        self.new_window.KMC_Result_Path_Button.setEnabled(False)
+        self.new_window.GM_Result_Path_Button.setEnabled(False)
+        self.new_window.GF_Result_Path_Button.setEnabled(False)
+        self.new_window.GroupA_Number_Edit.setEnabled(False)
+        self.new_window.GroupB_Number_Edit.setEnabled(False)
+        self.new_window.KMC_GO_Button.setEnabled(False)
+        self.new_window.GM_GO_Button.setEnabled(False)
+        self.new_window.GF_GO_Button.setEnabled(False)
         self.project_dir = getdir
         if system_platform == 'Windows':
             self.project_dir = self.project_dir.replace('/', '\\')
         elif system_platform == 'Linux':
             self.project_dir = self.project_dir.replace('\\', '/')
-        if os.listdir(self.project_dir) != []:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'Please select an empty folder!', QtWidgets.QMessageBox.Yes)
-            return
-        self.setWindowTitle(tool_name + ' ' + project_version + ' Project:' + self.project_dir)
-        os.mkdir(os.path.join(self.project_dir, 'kmer_countings'))
-        os.mkdir(os.path.join(self.project_dir, 'kmer_matrix'))
-        os.mkdir(os.path.join(self.project_dir, 'kmer_features'))
-        os.mkdir(os.path.join(self.project_dir, 'contig_result'))
-        self.projectfile.CreateNewFile(self.project_dir)
+        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath:' + self.project_dir)
+        try:
+            os.mkdir(os.path.join(self.project_dir, 'kmer_countings'))
+        except:
+            pass
+        try:
+            os.mkdir(os.path.join(self.project_dir, 'kmer_matrix'))
+        except:
+            pass
+        try:
+            os.mkdir(os.path.join(self.project_dir, 'kmer_features'))
+        except:
+            pass
+        try:
+            os.mkdir(os.path.join(self.project_dir, 'contig_result'))
+        except:
+            pass
+        self.projectfile.KMC_path = os.path.join(self.project_dir, 'kmer_countings')
+        self.projectfile.GM_path = os.path.join(self.project_dir, 'kmer_matrix')
+        self.projectfile.GF_path = os.path.join(self.project_dir, 'kmer_features')
         self.ReadConfiguration()
 
-    def OpenProject_Clicked(self):
-        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the floder of a project', './')
-        if getdir == '': return
-        self.project_dir = getdir
-        if system_platform == 'Windows':
-            self.project_dir = self.project_dir.replace('/', '\\')
-        elif system_platform == 'Linux':
-            self.project_dir = self.project_dir.replace('\\', '/')
-        if os.path.exists(os.path.join(self.project_dir, 'ProjectList.list')) == False:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'Can not find a project file!', QtWidgets.QMessageBox.Yes)
-            return
-        self.setWindowTitle(tool_name + ' ' + project_version + ' Project:' + self.project_dir)
-        self.projectfile.ReadFile(self.project_dir)
+    def StepByStepRunningButton_Clicked(self):
+        self.static_mode = self.mode = 1
+        self.new_window.OneClickRunningButton.setText('One Click Running')
+        self.new_window.StepByStepRunningButton.setText('*Step By Step Running')
+        self.new_window.KA_GO_Button.setText('Start')
+        self.projectfile.KMC_OK = False
+        self.projectfile.GM_OK = False
+        self.projectfile.GF_OK = False
+        self.projectfile.KA_OK = False
+        self.new_window.KMC_Result_Path_Button.setEnabled(True)
+        self.new_window.GM_Result_Path_Button.setEnabled(True)
+        self.new_window.GF_Result_Path_Button.setEnabled(True)
+        self.new_window.GroupA_Number_Edit.setEnabled(True)
+        self.new_window.GroupB_Number_Edit.setEnabled(True)
+        self.new_window.KMC_GO_Button.setEnabled(True)
+        self.new_window.GM_GO_Button.setEnabled(True)
+        self.new_window.GF_GO_Button.setEnabled(True)
+        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath:' + self.project_dir)
         self.ReadConfiguration()
-
-    def SaveProject_Clicked(self):
-        if self.project_dir == '':
-            QtWidgets.QMessageBox.critical(self, 'Error', 'No project was opened!', QtWidgets.QMessageBox.Yes)
-            return
-        self.projectfile.WriteFile(self.project_dir)
-        QtWidgets.QMessageBox.information(self, 'Success', 'Save this project successfully!', QtWidgets.QMessageBox.Yes)
 
     def Open_GroupA_FASTAQ_Button_Clicked(self):
         getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of A group sequencing files',
@@ -270,7 +301,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def KMC_GO_Button_Clicked(self):
         if self.GO_flag == True:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'An assignment is running!', QtWidgets.QMessageBox.Yes)
+            QtWidgets.QMessageBox.critical(self, 'Error', 'A task is running!', QtWidgets.QMessageBox.Yes)
             return
         self.GO_flag = True
         self.new_window.KMC_GO_Button.setEnabled(False)
@@ -280,6 +311,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.K_Value_Edit.setEnabled(False)
         self.new_window.CI_Value_Edit.setEnabled(False)
         self.new_window.CS_Value_Edit.setEnabled(False)
+        self.new_window.OneClickRunningButton.setEnabled(False)
+        self.new_window.StepByStepRunningButton.setEnabled(False)
         self.kmc_thread = kmc_read.KMC_Thread((self.projectfile.K_value, self.projectfile.Ci_value,
                                                self.projectfile.Cs_value, self.projectfile.FASTAQ_path_A,
                                                self.projectfile.FASTAQ_path_B, self.projectfile.KMC_path))
@@ -291,13 +324,18 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def KMC_Timer_Show(self):
         if self.kmc_thread.status <= 0:
             self.GO_flag = False
-            self.new_window.KMC_GO_Button.setEnabled(True)
             self.new_window.Open_GroupA_FASTAQ_Button.setEnabled(True)
             self.new_window.Open_GroupB_FASTAQ_Button.setEnabled(True)
-            self.new_window.KMC_Result_Path_Button.setEnabled(True)
+            if self.mode == 1:
+                self.new_window.KMC_Result_Path_Button.setEnabled(True)
+                self.new_window.KMC_GO_Button.setEnabled(True)
+            else:
+                self.new_window.KA_GO_Button.setEnabled(True)
             self.new_window.K_Value_Edit.setEnabled(True)
             self.new_window.CI_Value_Edit.setEnabled(True)
             self.new_window.CS_Value_Edit.setEnabled(True)
+            self.new_window.OneClickRunningButton.setEnabled(True)
+            self.new_window.StepByStepRunningButton.setEnabled(True)
             if self.kmc_thread.status == 0:
                 self.projectfile.KMC_OK = True
                 self.new_window.KMC_Project_Status_Label.setText('Status: Complete')
@@ -305,15 +343,20 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             else:
                 self.new_window.KMC_Project_Status_Label.setText('Status: ' + self.kmc_thread.loginfo)
                 self.new_window.KMC_Project_Status_Label.setStyleSheet('color:red')
-            del self.kmc_thread     # free up memery
             self.kmc_timer.stop()
+            # if one-click
+            if self.kmc_thread.status == 0 and self.mode == 0:
+                del self.kmc_thread  # free up memery
+                self.GM_GO_Button_Clicked()
+            else:
+                del self.kmc_thread  # free up memery
         else:
             self.new_window.KMC_Project_Status_Label.setText('Status: ' + self.kmc_thread.loginfo)
             self.new_window.KMC_Project_Status_Label.setStyleSheet('color:blue')
 
     def GM_GO_Button_Clicked(self):
         if self.GO_flag == True:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'An assignment is running!', QtWidgets.QMessageBox.Yes)
+            QtWidgets.QMessageBox.critical(self, 'Error', 'A tast is running!', QtWidgets.QMessageBox.Yes)
             return
         # check free space
         kmc_file_size = self.get_space_occupation(self.projectfile.KMC_path)
@@ -329,6 +372,10 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             if buttonReply != True:
                 return
         # initialization folders
+        try:
+            os.remove('temp')
+        except:
+            pass
         self.GO_flag = True
         self.new_window.KMC_Result_Path_Button.setEnabled(False)
         self.new_window.GM_Result_Path_Button.setEnabled(False)
@@ -338,6 +385,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GM_GO_Button.setEnabled(False)
         self.new_window.GroupA_Number_Edit.setEnabled(False)
         self.new_window.GroupB_Number_Edit.setEnabled(False)
+        self.new_window.OneClickRunningButton.setEnabled(False)
+        self.new_window.StepByStepRunningButton.setEnabled(False)
         self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
                                                self.projectfile.Process_value, self.projectfile.K_value,
                                                self.projectfile.Cs_value, self.projectfile.GroupA_Number, self.projectfile.GroupB_Number))
@@ -349,14 +398,19 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def GM_Timer_Show(self):
         if self.gm_thread.status <= 0:
             self.GO_flag = False
-            self.new_window.KMC_Result_Path_Button.setEnabled(True)
-            self.new_window.GM_Result_Path_Button.setEnabled(True)
+            if self.mode == 1:
+                self.new_window.KMC_Result_Path_Button.setEnabled(True)
+                self.new_window.GM_Result_Path_Button.setEnabled(True)
+                self.new_window.GM_GO_Button.setEnabled(True)
+            else:
+                self.new_window.KA_GO_Button.setEnabled(True)
             self.new_window.Process_Number_Edit.setEnabled(True)
             self.new_window.K_Value_Edit.setEnabled(True)
             self.new_window.CS_Value_Edit.setEnabled(True)
-            self.new_window.GM_GO_Button.setEnabled(True)
             self.new_window.GroupA_Number_Edit.setEnabled(True)
             self.new_window.GroupB_Number_Edit.setEnabled(True)
+            self.new_window.OneClickRunningButton.setEnabled(True)
+            self.new_window.StepByStepRunningButton.setEnabled(True)
             try:
                 shutil.rmtree('temp')
                 for job in self.gm_thread.jobs:
@@ -371,8 +425,13 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             else:
                 self.new_window.GM_Project_Status_Label.setText('Status: ' + self.gm_thread.loginfo)
                 self.new_window.GM_Project_Status_Label.setStyleSheet('color:red')
-            del self.gm_thread  # free up memery
             self.gm_timer.stop()
+            # if one-click
+            if self.gm_thread.status == 0 and self.mode == 0:
+                del self.gm_thread  # free up memery
+                self.GF_GO_Button_Clicked()
+            else:
+                del self.gm_thread  # free up memery
         else:
             if self.gm_thread.status == 2:
                 error_status = self.gm_thread.detective_error()
@@ -402,8 +461,9 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def GF_GO_Button_Clicked(self):
         if self.GO_flag == True:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'An assignment is running!', QtWidgets.QMessageBox.Yes)
+            QtWidgets.QMessageBox.critical(self, 'Error', 'A task is running!', QtWidgets.QMessageBox.Yes)
             return
+
         # check free space
         gm_file_size = self.get_space_occupation(self.projectfile.GM_path)
         free_space_size = self.get_free_space_b(self.projectfile.GM_path)
@@ -416,9 +476,12 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             if buttonReply != True:
                 return
         # initialization folders
+        try:
+            os.remove('temp')
+        except:
+            pass
         self.GO_flag = True
         self.new_window.GF_GO_Button.setEnabled(False)
-        self.new_window.KMC_Result_Path_Button.setEnabled(False)
         self.new_window.GM_Result_Path_Button.setEnabled(False)
         self.new_window.GF_Result_Path_Button.setEnabled(False)
         self.new_window.GroupA_Number_Edit.setEnabled(False)
@@ -426,6 +489,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_l_Value_Edit.setEnabled(False)
         self.new_window.P_Value_Edit.setEnabled(False)
         self.new_window.ASS_n_Value_Edit.setEnabled(False)
+        self.new_window.OneClickRunningButton.setEnabled(False)
+        self.new_window.StepByStepRunningButton.setEnabled(False)
         self.gf_thread = kmer_features.GF_Thread((self.projectfile.GM_path, self.projectfile.GF_path,
                                                   self.projectfile.ASS_l_value, self.projectfile.P_value,
                                                   self.projectfile.ASS_n_value, self.projectfile.GroupA_Number,
@@ -438,15 +503,19 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def GF_Timer_Show(self):
         if self.gf_thread.status <= 0:
             self.GO_flag = False
-            self.new_window.GF_GO_Button.setEnabled(True)
-            self.new_window.KMC_Result_Path_Button.setEnabled(True)
-            self.new_window.GM_Result_Path_Button.setEnabled(True)
-            self.new_window.GF_Result_Path_Button.setEnabled(True)
+            if self.mode == 1:
+                self.new_window.GM_Result_Path_Button.setEnabled(True)
+                self.new_window.GF_Result_Path_Button.setEnabled(True)
+                self.new_window.GF_GO_Button.setEnabled(True)
+            else:
+                self.new_window.KA_GO_Button.setEnabled(True)
             self.new_window.GroupA_Number_Edit.setEnabled(True)
             self.new_window.GroupB_Number_Edit.setEnabled(True)
             self.new_window.ASS_l_Value_Edit.setEnabled(True)
             self.new_window.P_Value_Edit.setEnabled(True)
             self.new_window.ASS_n_Value_Edit.setEnabled(True)
+            self.new_window.OneClickRunningButton.setEnabled(True)
+            self.new_window.StepByStepRunningButton.setEnabled(True)
             try:
                 shutil.rmtree('temp')
                 for job in self.gf_thread.jobs:
@@ -461,8 +530,15 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             else:
                 self.new_window.GF_Project_Status_Label.setText('Status: ' + self.gf_thread.loginfo)
                 self.new_window.GF_Project_Status_Label.setStyleSheet('color:red')
-            del self.gf_thread  # free up memery
+
             self.gf_timer.stop()
+            # if one-click
+            if self.gf_thread.status == 0 and self.mode == 0:
+                self.mode = 1
+                del self.gf_thread  # free up memery
+                self.KA_GO_Button_Clicked()
+            else:
+                del self.gf_thread  # free up memery
         else:
             if self.gf_thread.status == 2:
                 error_status = self.gf_thread.detective_error()
@@ -485,7 +561,12 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def KA_GO_Button_Clicked(self):
         if self.GO_flag == True:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'An assignment is running!', QtWidgets.QMessageBox.Yes)
+            QtWidgets.QMessageBox.critical(self, 'Error', 'A task is running!', QtWidgets.QMessageBox.Yes)
+            return
+        # one-click running or step-by-step running
+        if self.mode == 0:
+            self.new_window.KA_GO_Button.setEnabled(False)
+            self.KMC_GO_Button_Clicked()
             return
         # initialization folders
         try:
@@ -495,6 +576,10 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.GO_flag = True
         self.new_window.KA_GO_Button.setEnabled(False)
         self.new_window.GF_Result_Path_Button.setEnabled(False)
+        self.new_window.OneClickRunningButton.setEnabled(False)
+        self.new_window.StepByStepRunningButton.setEnabled(False)
+        if not(os.path.exists(os.path.join(self.project_dir, 'contig_result'))):
+            os.mkdir(os.path.join(self.project_dir, 'contig_result'))
         self.ka_thread = sequence_assembly.KA_Thread((self.projectfile.GF_path,
                                                       os.path.join(self.project_dir, 'contig_result')))
         self.ka_thread.start()
@@ -505,23 +590,32 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def KA_Timer_Show(self):
         if self.ka_thread.status <= 0:
             self.GO_flag = False
+            self.mode = self.static_mode
             self.new_window.KA_GO_Button.setEnabled(True)
-            self.new_window.GF_Result_Path_Button.setEnabled(True)
+            if self.mode == 1:
+                self.new_window.GF_Result_Path_Button.setEnabled(True)
+            self.new_window.OneClickRunningButton.setEnabled(True)
+            self.new_window.StepByStepRunningButton.setEnabled(True)
             if self.ka_thread.status == 0:
                 self.projectfile.KA_OK = True
                 self.new_window.KA_Project_Status_Label.setText('Status: Complete')
                 self.new_window.KA_Project_Status_Label.setStyleSheet('color:green')
+                QtWidgets.QMessageBox.information(self, 'Success', 'Result files are stored in: ' +
+                                                  os.path.join(self.project_dir, 'contig_result'),
+                                                  QtWidgets.QMessageBox.Yes)
             else:
                 self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
                 self.new_window.KA_Project_Status_Label.setStyleSheet('color:red')
             del self.ka_thread     # free up memery
             self.ka_timer.stop()
+            self.StepByStepRunningButton_Clicked()  # default step-by-step running
         else:
             self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
             self.new_window.KA_Project_Status_Label.setStyleSheet('color:blue')
 
 if __name__ == "__main__":
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    multiprocessing.freeze_support()
     app = QtWidgets.QApplication(sys.argv)
     mywindow = myWindow()
     mywindow.show()
