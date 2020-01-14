@@ -35,6 +35,14 @@ Type these commands if you first use KmerGO:
 
 After that, you can type "**./KmerGO**" to run it.
 
+### Test data
+
+Test data can be found in folder "test_data".
+
+We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for One-Click testing. 
+
+And we also prepared one testing matrix which is stored on "test_data/test_filtering" for running filtering operation independently.
+
 ## Usage
 
 <p align="center">
@@ -108,14 +116,6 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 (3) The result files will be created in "contig_result" folder.
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_cap3.gif)
-
-## Test data
-
-Test data can be found in "release" section. You can also click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/test_data.zip) to download it.
-
-We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for One-Click testing. 
-
-And we also prepared one testing matrix which is stored on "test_filtering" for running filtering operation independently.
 
 ## Contacts and bug reports
 
