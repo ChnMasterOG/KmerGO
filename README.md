@@ -10,6 +10,8 @@ Through multi-processes parallel computing, KmerGO is able to capture all the gr
 
 KmerGO can be run directly on Windows and Linux operating systems, without extra enviromental settings or configurations.
 
+**Attention: We recommend that you use parameters "k=25 MinValue=1" and set other parameters as default to run test data**
+
 ### Running on Windows
 
 KmerGO has been tested on Windows 7/8/10 (64 bits).
@@ -127,4 +129,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 14-Jan-2020
+Last update: 19-Mar-2020

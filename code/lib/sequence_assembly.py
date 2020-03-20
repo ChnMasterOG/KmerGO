@@ -1,10 +1,10 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.0
-# modification date: 2019/12/6
+# version: v2.1
+# modification date: 2020/3/19
 # assembly tool: cap3
 
-import os
+import os, sys
 import threading
 import platform
 
@@ -86,7 +86,8 @@ class KA_Thread(threading.Thread):
         if system_platform == 'Windows':
             cap3_command = r'.\bin\cap3.exe '
         elif system_platform == 'Linux':
-            cap3_command = './bin/cap3 '
+            file_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+            cap3_command = file_path + '/bin/./cap3 '
         else:
             return -1  # the system is not supported
 

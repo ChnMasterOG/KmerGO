@@ -1,9 +1,9 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.6
-# modification date: 2020/1/14
+# version: v2.7
+# modification date: 2020/3/20
 
-import os
+import os, sys
 import subprocess
 import threading
 import platform
@@ -48,9 +48,10 @@ class KMC_Thread(threading.Thread):
             kmc_tools_command = r'.\bin\kmc_tools.exe'
             kmc_dump_command = r'.\bin\kmc_dump.exe'
         elif system_platform == 'Linux':
-            kmc_command = './bin/kmc'
-            kmc_tools_command = './bin/kmc_tools'
-            kmc_dump_command = './bin/kmc_dump'
+            file_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+            kmc_command = file_path + '/bin/./kmc'
+            kmc_tools_command = file_path + '/bin/./kmc_tools'
+            kmc_dump_command = file_path + '/bin/./kmc_dump'
         else:
             return -1   # the system is not supported
 
