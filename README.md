@@ -2,9 +2,15 @@
 
 KmerGO is a user-friendly tool to identify the group-specific sequences on two groups of high throughput sequencing datasets. A sequence that is present, or rich, in one group, but absent, or scarce, in another group is considered “group-specific” here.
 
-KmerGO offers graphic interface under Windows and Linux with one-click installation free from environmental settings.
+Compared with other tools, KmerGO have the following advantages:
 
-Through multi-processes parallel computing, KmerGO is able to capture all the group-specific k-mers (k up to 40bps) for 1.07 TB data in fasta format on a regular standalone server(CPU Intel(R) Xeon(R) E5-2620 v4) in 21.5 hours, including 4 hours Kmer counting with KMC[https://academic.oup.com/bioinformatics/article/33/17/2759/3796399] and 17.5 hours(16 processes number) group-specific kmer identification, and return the assembled group-specific sequences.
+1.KmerGO offers graphic interface under Windows and Linux with one-click installation free from environmental settings.
+
+2.KmerGO is able to capture the long group-specific k-mers (k up to 40bps) with much lower requirements for computing resource in much shorter running time.
+
+3.Users can run KmerGO by one-click mode or step-by-step mode and use the output group-specific k-mers or sequences to be the input of other tools for the following discovery of biomarkers, such as genetic variants, species or genes.
+
+In our experiment, through multi-processes parallel computing, KmerGO is able to capture all the group-specific k-mers (k up to 40bps) for 1.07 TB data in fasta format on a regular standalone server(Intel(R) Xeon(R) E5-2620 v4 @ 2.10GHz) in 21.5 hours, including 4 hours Kmer counting with KMC[https://academic.oup.com/bioinformatics/article/33/17/2759/3796399] and 17.5 hours(16 processes number) group-specific kmer identification, and return the assembled group-specific sequences.
 
 ## Running on two operation systems
 
@@ -129,4 +135,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 19-Mar-2020
+Last update: 2020-04-04
