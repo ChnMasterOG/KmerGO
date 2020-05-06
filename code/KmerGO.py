@@ -1,11 +1,13 @@
 # coding = utf-8
 # author: QiChen
-# version: v1.4.1
-# modification date: 2020/1/14
+# version: v1.5.0
+# modification date: 2020/5/6
 
-import sys, os, shutil
+import sys, os, shutil, csv
+import time
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
+from collections import Counter
 import platform, ctypes
 import multiprocessing
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -14,7 +16,7 @@ from lib import kmc_read, kmer_matrix, kmer_features, sequence_assembly
 from lib import projectlist_file as plf
 
 tool_name = 'KmerGO'
-project_version = 'V1.4.1'
+project_version = 'V1.5.0'
 system_platform = platform.system()
 
 class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
@@ -32,11 +34,11 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.setupUi(self)
         self.new_window.OneClickRunningButton.clicked.connect(self.OneClickRunningButton_Clicked)
         self.new_window.StepByStepRunningButton.clicked.connect(self.StepByStepRunningButton_Clicked)
-        self.new_window.Open_GroupA_FASTAQ_Button.clicked.connect(self.Open_GroupA_FASTAQ_Button_Clicked)
-        self.new_window.Open_GroupB_FASTAQ_Button.clicked.connect(self.Open_GroupB_FASTAQ_Button_Clicked)
+        self.new_window.Open_Samples_FASTAQ_Button.clicked.connect(self.Open_Samples_FASTAQ_Button_Clicked)
         self.new_window.KMC_Result_Path_Button.clicked.connect(self.KMC_Result_Path_Button_Clicked)
         self.new_window.GM_Result_Path_Button.clicked.connect(self.GM_Result_Path_Button_Clicked)
         self.new_window.GF_Result_Path_Button.clicked.connect(self.GF_Result_Path_Button_Clicked)
+        self.new_window.Trait_Info_Path_Button.clicked.connect(self.Trait_Info_Path_Button_Clicked)
         self.new_window.KMC_GO_Button.clicked.connect(self.KMC_GO_Button_Clicked)
         self.new_window.GM_GO_Button.clicked.connect(self.GM_GO_Button_Clicked)
         self.new_window.GF_GO_Button.clicked.connect(self.GF_GO_Button_Clicked)
@@ -48,8 +50,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_l_Value_Edit.textChanged.connect(self.ASS_l_Value_Edit_TextChange)
         self.new_window.P_Value_Edit.textChanged.connect(self.P_Value_Edit_TextChange)
         self.new_window.ASS_n_Value_Edit.textChanged.connect(self.ASS_n_Value_Edit_TextChange)
-        self.new_window.GroupA_Number_Edit.textChanged.connect(self.GroupA_Number_Edit_TextChange)
-        self.new_window.GroupB_Number_Edit.textChanged.connect(self.GroupB_Number_Edit_TextChange)
+        self.new_window.Catagory_RadioButton.clicked.connect(self.Catagory_RadioButton_Clicked)
+        self.new_window.Continuous_RadioButton.clicked.connect(self.Continuous_RadioButton_Clicked)
         self.new_window.K_Value_Edit.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
         self.new_window.K_Value_Label.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
         self.new_window.CiValue_Label.setToolTip('minimal K-mer occurring times\n(default: 2)')
@@ -64,10 +66,6 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.P_Value_Label.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
         self.new_window.ASS_n_Value_Edit.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
         self.new_window.ASS_n_Value_Label.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
-        self.new_window.GroupA_Number_Edit.setToolTip('the number of sample in group A\n(default: 1)')
-        self.new_window.GroupA_Number_Label.setToolTip('the number of sample in group A\n(default: 1)')
-        self.new_window.GroupB_Number_Edit.setToolTip('the number of sample in group B\n(default: 1)')
-        self.new_window.GroupB_Number_Label.setToolTip('the number of sample in group B\n(default: 1)')
         self.setWindowTitle(tool_name + ' ' + project_version)
         self.setFixedSize(self.width(), self.height())
         # initialization
@@ -121,8 +119,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         else:
             self.new_window.KA_Project_Status_Label.setText('Status: Complete')
             self.new_window.KA_Project_Status_Label.setStyleSheet('color:green')
-        self.new_window.GroupA_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_A)
-        self.new_window.GroupB_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_B)
+        self.new_window.Samples_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path)
         self.new_window.K_Value_Edit.setText(str(self.projectfile.K_value))
         self.new_window.CI_Value_Edit.setText(str(self.projectfile.Ci_value))
         self.new_window.CS_Value_Edit.setText(str(self.projectfile.Cs_value))
@@ -130,11 +127,12 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.Process_Number_Edit.setText(str(self.projectfile.Process_value))
         self.new_window.GM_Result_Path_Edit.setText(self.projectfile.GM_path)
         self.new_window.P_Value_Edit.setText(str(self.projectfile.P_value))
-        self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
+        if self.new_window.Catagory_RadioButton.isChecked() is True:
+            self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
+        else:
+            self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.Corr_value))
         self.new_window.GF_Result_Path_Edit.setText(self.projectfile.GF_path)
         self.new_window.ASS_l_Value_Edit.setText(str(self.projectfile.ASS_l_value))
-        self.new_window.GroupA_Number_Edit.setText(str(self.projectfile.GroupA_Number))
-        self.new_window.GroupB_Number_Edit.setText(str(self.projectfile.GroupB_Number))
 
     def OneClickRunningButton_Clicked(self):
         getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select a folder for one-click runing.', './')
@@ -152,8 +150,6 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.KMC_Result_Path_Button.setEnabled(False)
         self.new_window.GM_Result_Path_Button.setEnabled(False)
         self.new_window.GF_Result_Path_Button.setEnabled(False)
-        self.new_window.GroupA_Number_Edit.setEnabled(False)
-        self.new_window.GroupB_Number_Edit.setEnabled(False)
         self.new_window.KMC_GO_Button.setEnabled(False)
         self.new_window.GM_GO_Button.setEnabled(False)
         self.new_window.GF_GO_Button.setEnabled(False)
@@ -198,17 +194,15 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.KMC_Result_Path_Button.setEnabled(True)
         self.new_window.GM_Result_Path_Button.setEnabled(True)
         self.new_window.GF_Result_Path_Button.setEnabled(True)
-        self.new_window.GroupA_Number_Edit.setEnabled(True)
-        self.new_window.GroupB_Number_Edit.setEnabled(True)
         self.new_window.KMC_GO_Button.setEnabled(True)
         self.new_window.GM_GO_Button.setEnabled(True)
         self.new_window.GF_GO_Button.setEnabled(True)
         self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath:' + self.project_dir)
         self.ReadConfiguration()
 
-    def Open_GroupA_FASTAQ_Button_Clicked(self):
-        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of A group sequencing files',
-                                                            self.projectfile.FASTAQ_path_A)
+    def Open_Samples_FASTAQ_Button_Clicked(self):
+        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of samples sequencing files',
+                                                            self.projectfile.FASTAQ_path)
         if getdir == '': return
         if system_platform == 'Windows':
             getdir = getdir.replace('/', '\\')
@@ -219,28 +213,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             suffix = seq[seq.find('.'):]
             if suffix.lower() not in kmc_read.FASTA_suffix and suffix.lower() not in kmc_read.FASTQ_suffix:
                 flist.remove(seq)
-        self.projectfile.FASTAQ_path_A = getdir
-        self.projectfile.GroupA_Number = len(flist)
-        self.new_window.GroupA_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_A)
-        self.new_window.GroupA_Number_Edit.setText(str(self.projectfile.GroupA_Number))
-
-    def Open_GroupB_FASTAQ_Button_Clicked(self):
-        getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of A group sequencing files',
-                                                            self.projectfile.FASTAQ_path_B)
-        if getdir == '': return
-        if system_platform == 'Windows':
-            getdir = getdir.replace('/', '\\')
-        elif system_platform == 'Linux':
-            getdir = getdir.replace('\\', '/')
-        flist = os.listdir(getdir)
-        for seq in list(flist):
-            suffix = seq[seq.find('.'):]
-            if suffix.lower() not in kmc_read.FASTA_suffix and suffix.lower() not in kmc_read.FASTQ_suffix:
-                flist.remove(seq)
-        self.projectfile.FASTAQ_path_B = getdir
-        self.projectfile.GroupB_Number = len(flist)
-        self.new_window.GroupB_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path_B)
-        self.new_window.GroupB_Number_Edit.setText(str(self.projectfile.GroupB_Number))
+        self.projectfile.FASTAQ_path = getdir
+        self.new_window.Samples_FASTAQ_Path_Edit.setText(self.projectfile.FASTAQ_path)
 
     def KMC_Result_Path_Button_Clicked(self):
         getdir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select the folder of k-mer counting files',
@@ -275,6 +249,32 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.projectfile.GF_path = getdir
         self.new_window.GF_Result_Path_Edit.setText(self.projectfile.GF_path)
 
+    def Trait_Info_Path_Button_Clicked(self):
+        getdir = QtWidgets.QFileDialog.getOpenFileName(self, 'Select the csv file of trait information',
+                                                       self.projectfile.GF_path, 'csv files(*.csv)')
+        getdir = getdir[0]
+        if getdir == '': return
+        if system_platform == 'Windows':
+            getdir = getdir.replace('/', '\\')
+        elif system_platform == 'Linux':
+            getdir = getdir.replace('\\', '/')
+        try:
+            csv_f = open(getdir, 'r')
+            reader = csv.reader(csv_f)
+            for row in reader:
+                if row[1] == 'trait':
+                    continue
+                else:
+                    self.projectfile.TI_dic[row[0]] = row[1]
+        except:
+            QtWidgets.QMessageBox.critical(self, 'Error', 'Can not read the CSV file!', QtWidgets.QMessageBox.Yes)
+            return
+        if len(self.projectfile.TI_dic) == 0:
+            QtWidgets.QMessageBox.critical(self, 'Error', 'Can not read the CSV file!', QtWidgets.QMessageBox.Yes)
+            return
+        self.projectfile.TI_path = getdir
+        self.new_window.Trait_Info_Path_Edit.setText(self.projectfile.TI_path)
+
     def K_Value_Edit_TextChange(self):
         try: self.projectfile.K_value = int(self.new_window.K_Value_Edit.text())
         except: pass
@@ -306,19 +306,14 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.P_Value_Edit.setText(str(self.projectfile.P_value))
 
     def ASS_n_Value_Edit_TextChange(self):
-        try: self.projectfile.ASS_n_value = float(self.new_window.ASS_n_Value_Edit.text())
-        except: pass
-        self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
-
-    def GroupA_Number_Edit_TextChange(self):
-        try: self.projectfile.GroupA_Number = int(self.new_window.GroupA_Number_Edit.text())
-        except: pass
-        self.new_window.GroupA_Number_Edit.setText(str(self.projectfile.GroupA_Number))
-
-    def GroupB_Number_Edit_TextChange(self):
-        try: self.projectfile.GroupB_Number = int(self.new_window.GroupB_Number_Edit.text())
-        except: pass
-        self.new_window.GroupB_Number_Edit.setText(str(self.projectfile.GroupB_Number))
+        if self.new_window.Catagory_RadioButton.isChecked() is True:
+            try: self.projectfile.ASS_n_value = float(self.new_window.ASS_n_Value_Edit.text())
+            except: pass
+            self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
+        else:
+            try: self.projectfile.Corr_value = float(self.new_window.ASS_n_Value_Edit.text())
+            except: pass
+            self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.Corr_value))
 
     def KMC_GO_Button_Clicked(self):
         if self.GO_flag == True:
@@ -326,8 +321,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             return
         self.GO_flag = True
         self.new_window.KMC_GO_Button.setEnabled(False)
-        self.new_window.Open_GroupA_FASTAQ_Button.setEnabled(False)
-        self.new_window.Open_GroupB_FASTAQ_Button.setEnabled(False)
+        self.new_window.Open_Samples_FASTAQ_Button.setEnabled(False)
         self.new_window.KMC_Result_Path_Button.setEnabled(False)
         self.new_window.K_Value_Edit.setEnabled(False)
         self.new_window.CI_Value_Edit.setEnabled(False)
@@ -335,8 +329,8 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.OneClickRunningButton.setEnabled(False)
         self.new_window.StepByStepRunningButton.setEnabled(False)
         self.kmc_thread = kmc_read.KMC_Thread((self.projectfile.K_value, self.projectfile.Ci_value,
-                                               self.projectfile.Cs_value, self.projectfile.FASTAQ_path_A,
-                                               self.projectfile.FASTAQ_path_B, self.projectfile.KMC_path))
+                                               self.projectfile.Cs_value, self.projectfile.FASTAQ_path,
+                                               self.projectfile.KMC_path))
         self.kmc_thread.start()
         self.kmc_timer = QtCore.QTimer(self)
         self.kmc_timer.timeout.connect(self.KMC_Timer_Show)
@@ -345,13 +339,15 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def KMC_Timer_Show(self):
         if self.kmc_thread.status <= 0:
             self.GO_flag = False
-            self.new_window.Open_GroupA_FASTAQ_Button.setEnabled(True)
-            self.new_window.Open_GroupB_FASTAQ_Button.setEnabled(True)
+            self.new_window.Open_Samples_FASTAQ_Button.setEnabled(True)
             if self.mode == 1:
                 self.new_window.KMC_Result_Path_Button.setEnabled(True)
                 self.new_window.KMC_GO_Button.setEnabled(True)
-            else:
+            elif self.kmc_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
+                self.new_window.Catagory_RadioButton.setEnabled(True)
+                self.new_window.Continuous_RadioButton.setEnabled(True)
+                self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.K_Value_Edit.setEnabled(True)
             self.new_window.CI_Value_Edit.setEnabled(True)
             self.new_window.CS_Value_Edit.setEnabled(True)
@@ -401,16 +397,16 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.KMC_Result_Path_Button.setEnabled(False)
         self.new_window.GM_Result_Path_Button.setEnabled(False)
         self.new_window.Process_Number_Edit.setEnabled(False)
-        self.new_window.K_Value_Edit.setEnabled(False)
-        self.new_window.CS_Value_Edit.setEnabled(False)
         self.new_window.GM_GO_Button.setEnabled(False)
-        self.new_window.GroupA_Number_Edit.setEnabled(False)
-        self.new_window.GroupB_Number_Edit.setEnabled(False)
         self.new_window.OneClickRunningButton.setEnabled(False)
         self.new_window.StepByStepRunningButton.setEnabled(False)
-        self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
-                                               self.projectfile.Process_value, self.projectfile.K_value,
-                                               self.projectfile.Cs_value, self.projectfile.GroupA_Number, self.projectfile.GroupB_Number))
+        if self.static_mode == 0 and self.new_window.Catagory_RadioButton.isChecked() is True:
+            self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
+                                                    self.projectfile.Process_value, self.projectfile.GroupA_Name,
+                                                    self.projectfile.GroupA_Number, self.projectfile.TI_dic))
+        else:
+            self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
+                                                   self.projectfile.Process_value, None, None, None))
         self.gm_thread.start()
         self.gm_timer = QtCore.QTimer(self)
         self.gm_timer.timeout.connect(self.GM_Timer_Show)
@@ -423,13 +419,12 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.KMC_Result_Path_Button.setEnabled(True)
                 self.new_window.GM_Result_Path_Button.setEnabled(True)
                 self.new_window.GM_GO_Button.setEnabled(True)
-            else:
+            elif self.gm_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
+                self.new_window.Catagory_RadioButton.setEnabled(True)
+                self.new_window.Continuous_RadioButton.setEnabled(True)
+                self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.Process_Number_Edit.setEnabled(True)
-            self.new_window.K_Value_Edit.setEnabled(True)
-            self.new_window.CS_Value_Edit.setEnabled(True)
-            self.new_window.GroupA_Number_Edit.setEnabled(True)
-            self.new_window.GroupB_Number_Edit.setEnabled(True)
             self.new_window.OneClickRunningButton.setEnabled(True)
             self.new_window.StepByStepRunningButton.setEnabled(True)
             try:
@@ -485,6 +480,10 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             QtWidgets.QMessageBox.critical(self, 'Error', 'A task is running!', QtWidgets.QMessageBox.Yes)
             return
 
+        if self.mode != 0 and self.Check_csv_validity() == False:
+            QtWidgets.QMessageBox.critical(self, 'Error', 'CSV format error', QtWidgets.QMessageBox.Yes)
+            return
+
         # check free space
         gm_file_size = self.get_space_occupation(self.projectfile.GM_path)
         free_space_size = self.get_free_space_b(self.projectfile.GM_path)
@@ -505,17 +504,21 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GF_GO_Button.setEnabled(False)
         self.new_window.GM_Result_Path_Button.setEnabled(False)
         self.new_window.GF_Result_Path_Button.setEnabled(False)
-        self.new_window.GroupA_Number_Edit.setEnabled(False)
-        self.new_window.GroupB_Number_Edit.setEnabled(False)
         self.new_window.ASS_l_Value_Edit.setEnabled(False)
         self.new_window.P_Value_Edit.setEnabled(False)
         self.new_window.ASS_n_Value_Edit.setEnabled(False)
         self.new_window.OneClickRunningButton.setEnabled(False)
         self.new_window.StepByStepRunningButton.setEnabled(False)
+        self.new_window.Catagory_RadioButton.setEnabled(False)
+        self.new_window.Continuous_RadioButton.setEnabled(False)
+        self.new_window.Trait_Info_Path_Button.setEnabled(False)
         self.gf_thread = kmer_features.GF_Thread((self.projectfile.GM_path, self.projectfile.GF_path,
                                                   self.projectfile.ASS_l_value, self.projectfile.P_value,
                                                   self.projectfile.ASS_n_value, self.projectfile.GroupA_Number,
-                                                  self.projectfile.GroupB_Number))
+                                                  self.projectfile.GroupB_Number, self.projectfile.GroupA_Name,
+                                                  self.projectfile.GroupB_Name, self.projectfile.TI_dic,
+                                                  self.projectfile.Corr_value,
+                                                  self.new_window.Catagory_RadioButton.isChecked()))
         self.gf_thread.start()
         self.gf_timer = QtCore.QTimer(self)
         self.gf_timer.timeout.connect(self.GF_Timer_Show)
@@ -528,15 +531,20 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.GM_Result_Path_Button.setEnabled(True)
                 self.new_window.GF_Result_Path_Button.setEnabled(True)
                 self.new_window.GF_GO_Button.setEnabled(True)
-            else:
+            elif self.gf_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
-            self.new_window.GroupA_Number_Edit.setEnabled(True)
-            self.new_window.GroupB_Number_Edit.setEnabled(True)
+                self.new_window.Catagory_RadioButton.setEnabled(True)
+                self.new_window.Continuous_RadioButton.setEnabled(True)
+                self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.ASS_l_Value_Edit.setEnabled(True)
             self.new_window.P_Value_Edit.setEnabled(True)
             self.new_window.ASS_n_Value_Edit.setEnabled(True)
             self.new_window.OneClickRunningButton.setEnabled(True)
             self.new_window.StepByStepRunningButton.setEnabled(True)
+            if self.mode == 1:
+                self.new_window.Catagory_RadioButton.setEnabled(True)
+                self.new_window.Continuous_RadioButton.setEnabled(True)
+                self.new_window.Trait_Info_Path_Button.setEnabled(True)
             try:
                 shutil.rmtree('temp')
                 for job in self.gf_thread.jobs:
@@ -551,7 +559,6 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             else:
                 self.new_window.GF_Project_Status_Label.setText('Status: ' + self.gf_thread.loginfo)
                 self.new_window.GF_Project_Status_Label.setStyleSheet('color:red')
-
             self.gf_timer.stop()
             # if one-click
             if self.gf_thread.status == 0 and self.mode == 0:
@@ -586,7 +593,16 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             return
         # one-click running or step-by-step running
         if self.mode == 0:
+            if self.projectfile.TI_path == '':
+                QtWidgets.QMessageBox.critical(self, 'Error', 'No CSV files selected!', QtWidgets.QMessageBox.Yes)
+                return
+            if self.Check_csv_validity() == False:
+                QtWidgets.QMessageBox.critical(self, 'Error', 'CSV format error', QtWidgets.QMessageBox.Yes)
+                return
             self.new_window.KA_GO_Button.setEnabled(False)
+            self.new_window.Catagory_RadioButton.setEnabled(False)
+            self.new_window.Continuous_RadioButton.setEnabled(False)
+            self.new_window.Trait_Info_Path_Button.setEnabled(False)
             self.KMC_GO_Button_Clicked()
             return
         # initialization folders
@@ -615,6 +631,9 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.new_window.KA_GO_Button.setEnabled(True)
             if self.mode == 1:
                 self.new_window.GF_Result_Path_Button.setEnabled(True)
+            self.new_window.Catagory_RadioButton.setEnabled(True)
+            self.new_window.Continuous_RadioButton.setEnabled(True)
+            self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.OneClickRunningButton.setEnabled(True)
             self.new_window.StepByStepRunningButton.setEnabled(True)
             if self.ka_thread.status == 0:
@@ -629,10 +648,50 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.KA_Project_Status_Label.setStyleSheet('color:red')
             del self.ka_thread     # free up memery
             self.ka_timer.stop()
-            self.StepByStepRunningButton_Clicked()  # default step-by-step running
+            #self.StepByStepRunningButton_Clicked()  # default step-by-step running
         else:
             self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
             self.new_window.KA_Project_Status_Label.setStyleSheet('color:blue')
+
+    def Catagory_RadioButton_Clicked(self):
+        self.new_window.ASS_l_Value_Label.setVisible(True)
+        self.new_window.ASS_l_Value_Edit.setVisible(True)
+        self.new_window.ASS_n_Value_Label.setText('<html><head/><body><p align="center">ASS-n =</p></body></html>')
+        self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
+        self.new_window.P_Value_Edit.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
+        self.new_window.P_Value_Label.setToolTip('numeric features rank sum test p threshold value\n(default: 0.01)')
+        self.new_window.ASS_n_Value_Edit.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
+        self.new_window.ASS_n_Value_Label.setToolTip('numeric features logistic regression ASS value\n(default: 0.8)')
+
+    def Continuous_RadioButton_Clicked(self):
+        self.new_window.ASS_l_Value_Label.setVisible(False)
+        self.new_window.ASS_l_Value_Edit.setVisible(False)
+        self.new_window.ASS_n_Value_Label.setText('<html><head/><body><p align="center">ρ =</p></body></html>')
+        self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.Corr_value))
+        self.new_window.P_Value_Edit.setToolTip('logical features rank sum test p threshold value\n(default: 0.01)')
+        self.new_window.P_Value_Label.setToolTip('logical features rank sum test p threshold value\n(default: 0.01)')
+        self.new_window.ASS_n_Value_Edit.setToolTip('numeric features coefficient of association ρ threshold value\n(default: 0.8)')
+        self.new_window.ASS_n_Value_Label.setToolTip('numeric features coefficient of association ρ threshold value\n(default: 0.8)')
+
+    def Check_csv_validity(self):
+        if self.new_window.Catagory_RadioButton.isChecked() is True:
+            counter_dic = Counter(self.projectfile.TI_dic.values())
+            if len(counter_dic) != 2:
+                return False
+            else:
+                self.projectfile.GroupA_Name = list(counter_dic.keys())[0]
+                self.projectfile.GroupA_Number = list(counter_dic.values())[0]
+                self.projectfile.GroupB_Name = list(counter_dic.keys())[1]
+                self.projectfile.GroupB_Number = list(counter_dic.values())[1]
+                self.projectfile.Group_Number = self.projectfile.GroupA_Number + self.projectfile.GroupB_Number
+                return True
+        else:
+            for v in self.projectfile.TI_dic.values():
+                try:
+                    float(v)
+                except:
+                    return False
+            return True
 
 if __name__ == "__main__":
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)

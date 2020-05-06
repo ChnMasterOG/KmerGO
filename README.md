@@ -22,7 +22,7 @@ KmerGO can be run directly on Windows and Linux operating systems, without extra
 
 KmerGO has been tested on Windows 7/8/10 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/KmerGO_for_windows_x64.zip) to download the Windows version of KmerGO.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_windows_x64.zip) to download the Windows version of KmerGO.
 
 Decompress the file and run the "Install.bat" with the highest authority if you first use KmerGO.
 
@@ -32,7 +32,7 @@ After that, you can double-click **KmerGO.exe** to run it.
 
 KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.4.1/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
 
 Decompress the file and enter the software path.
 
@@ -45,11 +45,9 @@ After that, you can type "**./KmerGO**" to run it.
 
 ### Test data
 
-Test data can be found in folder "test_data".
+We prepared some FASTA format files which are stored in "test_data/samples" for One-Click testing.
 
-We prepared two groups of FASTA format files which are stored on "group_A" and "group_B" for One-Click testing. 
-
-And we also prepared one testing matrix which is stored on "test_data/test_filtering" for running filtering operation independently.
+And trait files can be also found in folder "test_data".
 
 ## Usage
 
@@ -65,7 +63,13 @@ As shown in the following Gif, You should first select a workpath folder of work
 
 After that, you can set the parameters and press the button "One-Click Start" to start the running. KmerGO can execute all steps automatically if there are no errors.
 
-![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_running.gif)
+**a) catagory trait type**
+
+![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_catagory_mode.gif)
+
+**b) continuous trait type**
+
+![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_continuous_mode.gif)
 
 And the result files will be created in "{$workpath}/contig_result" folder.
 
@@ -75,7 +79,7 @@ And the result files will be created in "{$workpath}/contig_result" folder.
 
 If you want obtain the K-mer occurring times using the short reads of FASTA/Q format files independently, you can set it up according to the following steps:
 
-(1) Select "FASTA/Q files path of group A" and "FASTA/Q files path of group B" of input files path.
+(1) Select "FASTA/Q files path of samples" of input files path.
 
 (2) Select "K-mer counting files path" of output files path.
 
@@ -93,7 +97,7 @@ If you want obtain the K-mer matrixes in different samples using sorted K-mer oc
 
 (2) Select "KMC matrix files path" of output matrixes path.
 
-(3) Set K-mer length (K), K-mer occurring times upper value (MaxValue), the number of samples in two groups and the number of processes.
+(3) Set the number of processes.
 
 (4) Click "Start" button to run it.
 
@@ -105,11 +109,15 @@ If you want obtain the K-mer filtering features using the K-mer union matrixes i
 
 (1) Select "KMC matrix files path" of input matrixes path.
 
-(2) Select "K-mer feature files path" of output features path.
+(2) Select the trait type (catagory or continuous).
 
-(3) Set the number of samples in two group, ASS threshold value of logical features, rank sum test p value and ASS threshold value of numerical features.
+(3) Select "A CSV file for trait information".
 
-(4) Click "Start" button to run it.
+(4) Select "K-mer feature files path" of output features path.
+
+(5) Set ASS threshold value of logical features, rank sum test p value and ASS threshold value of numerical features. Or Set rank sum test p value of logical features and spearman ρ threshold value of numerical features.
+
+(6) Click "Start" button to run it.
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_filtering.gif)
 
@@ -125,6 +133,48 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_cap3.gif)
 
+## Trait information format
+
+**Catagory Trait**
+
+Example1:
+
+id,trait
+
+1,A
+
+2,A
+
+3,B
+
+...
+
+Example2:
+
+id,trait
+
+SRR1,Case
+
+SRR2,Control
+
+SRR3,Case
+
+...
+
+**Continuous Trait**
+
+Example:
+
+id,trait
+
+SRR1,1.02
+
+SRR2,2.35
+
+SRR3,5.22
+
+...
+
 ## Contacts and bug reports
 
 Please send bug reports, comments, or questions to
@@ -135,4 +185,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2020-04-04
+Last update: 2020-05-06

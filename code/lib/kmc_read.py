@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.7
-# modification date: 2020/3/20
+# version: v3.0
+# modification date: 2020/4/21
 
 import os, sys
 import subprocess
@@ -37,10 +37,9 @@ class KMC_Thread(threading.Thread):
         k_value = self.Parameters[0]
         ci_value = self.Parameters[1]
         cs_value = self.Parameters[2]
-        work_dir = [self.Parameters[3], self.Parameters[4]]
-        output_dir = self.Parameters[5]
-        key = ['A', 'B']
-        flist = [[], []]
+        work_dir = self.Parameters[3]
+        output_dir = self.Parameters[4]
+        flist = []
         typelist = []
 
         if system_platform == 'Windows':
@@ -55,54 +54,52 @@ class KMC_Thread(threading.Thread):
         else:
             return -1   # the system is not supported
 
-        for j in range(2):  # A/B group
-            for dir, folder, file in os.walk(work_dir[j]):
-                if dir == work_dir[j]:
-                    flist[j] = file
-            flist[j].sort()
-            for i in list(flist[j]):
-                suffix = i[i.find('.'):]
-                if suffix.lower() in FASTA_suffix:
-                    typelist.append(' -fm ')
-                    flist[j][flist[j].index(i)] = os.path.join(work_dir[j], i)
-                elif suffix.lower() in FASTQ_suffix:
-                    typelist.append(' -fq ')
-                    flist[j][flist[j].index(i)] = os.path.join(work_dir[j], i)
-                else:
-                    flist[j].remove(i)
-            if len(flist[j]) == 0:
+        for dir, folder, file in os.walk(work_dir):
+            if dir == work_dir:
+                flist = file
+        flist.sort()
+        for i in list(flist):
+            suffix = i[i.find('.'):]
+            if suffix.lower() in FASTA_suffix:
+                typelist.append(' -fm ')
+                flist[flist.index(i)] = [i[:i.find('.')], os.path.join(work_dir, i)]
+            elif suffix.lower() in FASTQ_suffix:
+                typelist.append(' -fq ')
+                flist[flist.index(i)] = [i[:i.find('.')], os.path.join(work_dir, i)]
+            else:
+                flist.remove(i)
+            if len(flist) == 0:
                 return -2  # no files in this directory
 
-        for j in range(2):  # A/B group
-            countings = 0
-            self.loginfo = key[j] + ' group 0/' + str(len(flist[j]))
-            for i in range(len(flist[j])):
-                countings += 1
-                cmd = kmc_command + ' -k' + str(k_value) + ' -ci' + str(ci_value) + ' -cs' + str(cs_value)\
-                      + typelist[i] + flist[j][i] + ' ' + os.path.join(work_dir[j], key[j] + str(countings))\
-                      + ' ' + work_dir[j]
-                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
-                if r != 0:
-                    return 0 / 0
-                cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir[j], key[j] + str(countings))\
-                      + ' sort ' + os.path.join(work_dir[j], key[j] + str(countings) + '_sort')
-                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-                if r != 0:
-                    return 0 / 0
-                cmd = kmc_dump_command + ' -cs' + str(cs_value) + ' '\
-                      + os.path.join(work_dir[j], key[j] + str(countings) + '_sort') + ' '\
-                      + os.path.join(output_dir, key[j] + str(countings) + '.txt') + ' '\
-                      + os.path.join(output_dir, key[j]+ str(countings) + '_beacon.txt')
-                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-                if r != 0:
-                    return 0 / 0
-                os.remove(os.path.join(work_dir[j], key[j] + str(countings) + '.kmc_pre'))
-                os.remove(os.path.join(work_dir[j], key[j] + str(countings) + '.kmc_suf'))
-                os.remove(os.path.join(work_dir[j], key[j] + str(countings) + '_sort.kmc_pre'))
-                os.remove(os.path.join(work_dir[j], key[j] + str(countings) + '_sort.kmc_suf'))
-                self.loginfo = key[j] + ' group ' + str(countings) + '/' +  str(len(flist[j]))
+        countings = 0
+        self.loginfo = 'Number 0/' + str(len(flist))
+        for i in range(len(flist)):
+            countings += 1
+            cmd = kmc_command + ' -k' + str(k_value) + ' -ci' + str(ci_value) + ' -cs' + str(cs_value)\
+                  + typelist[i] + flist[i][1] + ' ' + os.path.join(work_dir, flist[i][0])\
+                  + ' ' + work_dir
+            r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+            if r != 0:
+                return 0 / 0
+            cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir, flist[i][0])\
+                  + ' sort ' + os.path.join(work_dir, flist[i][0] + '_sort')
+            r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+            if r != 0:
+                return 0 / 0
+            cmd = kmc_dump_command + ' -cs' + str(cs_value) + ' '\
+                  + os.path.join(work_dir, flist[i][0] + '_sort') + ' '\
+                  + os.path.join(output_dir, flist[i][0] + '.txt') + ' '\
+                  + os.path.join(output_dir, flist[i][0] + '_beacon.txt')
+            r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+            if r != 0:
+                return 0 / 0
+            os.remove(os.path.join(work_dir, flist[i][0] + '.kmc_pre'))
+            os.remove(os.path.join(work_dir, flist[i][0] + '.kmc_suf'))
+            os.remove(os.path.join(work_dir, flist[i][0] + '_sort.kmc_pre'))
+            os.remove(os.path.join(work_dir, flist[i][0] + '_sort.kmc_suf'))
+            self.loginfo = 'Number ' + str(countings) + '/' +  str(len(flist))
 
         return 0

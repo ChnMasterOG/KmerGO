@@ -20,7 +20,7 @@
       <x>10</x>
       <y>60</y>
       <width>461</width>
-      <height>141</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="font">
@@ -34,7 +34,7 @@
     <property name="title">
      <string>K-mer counting</string>
     </property>
-    <widget class="QLineEdit" name="GroupA_FASTAQ_Path_Edit">
+    <widget class="QLineEdit" name="Samples_FASTAQ_Path_Edit">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -55,7 +55,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="Open_GroupA_FASTAQ_Button">
+    <widget class="QPushButton" name="Open_Samples_FASTAQ_Button">
      <property name="geometry">
       <rect>
        <x>400</x>
@@ -97,7 +97,7 @@
       <string>Status:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="GroupA_Path_Label">
+    <widget class="QLabel" name="Samples_Path_Label">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -115,77 +115,14 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;FASTA/Q files path of group A&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="Open_GroupB_FASTAQ_Button">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>80</y>
-       <width>51</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>宋体</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="GroupB_FASTAQ_Path_Edit">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>80</y>
-       <width>171</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="GroupB_Path_Label">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>211</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;FASTA/Q files path of group B&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;FASTA/Q files path of samples&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QPushButton" name="KMC_GO_Button">
      <property name="geometry">
       <rect>
        <x>350</x>
-       <y>110</y>
+       <y>80</y>
        <width>101</width>
        <height>21</height>
       </rect>
@@ -206,7 +143,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>80</y>
        <width>31</width>
        <height>21</height>
       </rect>
@@ -227,7 +164,7 @@
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>110</y>
+       <y>80</y>
        <width>31</width>
        <height>20</height>
       </rect>
@@ -248,7 +185,7 @@
      <property name="geometry">
       <rect>
        <x>80</x>
-       <y>110</y>
+       <y>80</y>
        <width>81</width>
        <height>21</height>
       </rect>
@@ -269,7 +206,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>110</y>
+       <y>80</y>
        <width>31</width>
        <height>20</height>
       </rect>
@@ -290,7 +227,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>110</y>
+       <y>80</y>
        <width>81</width>
        <height>21</height>
       </rect>
@@ -311,7 +248,7 @@
      <property name="geometry">
       <rect>
        <x>280</x>
-       <y>110</y>
+       <y>80</y>
        <width>61</width>
        <height>20</height>
       </rect>
@@ -333,7 +270,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>210</y>
+      <y>180</y>
       <width>461</width>
       <height>111</height>
      </rect>
@@ -501,9 +438,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
+      <y>300</y>
       <width>461</width>
-      <height>141</height>
+      <height>171</height>
      </rect>
     </property>
     <property name="font">
@@ -605,7 +542,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>110</y>
+       <y>140</y>
        <width>71</width>
        <height>21</height>
       </rect>
@@ -626,7 +563,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>110</y>
+       <y>140</y>
        <width>51</width>
        <height>20</height>
       </rect>
@@ -647,7 +584,7 @@
      <property name="geometry">
       <rect>
        <x>120</x>
-       <y>110</y>
+       <y>140</y>
        <width>41</width>
        <height>21</height>
       </rect>
@@ -668,7 +605,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>110</y>
+       <y>140</y>
        <width>61</width>
        <height>20</height>
       </rect>
@@ -689,7 +626,7 @@
      <property name="geometry">
       <rect>
        <x>220</x>
-       <y>110</y>
+       <y>140</y>
        <width>71</width>
        <height>21</height>
       </rect>
@@ -710,7 +647,7 @@
      <property name="geometry">
       <rect>
        <x>290</x>
-       <y>110</y>
+       <y>140</y>
        <width>51</width>
        <height>20</height>
       </rect>
@@ -731,7 +668,7 @@
      <property name="geometry">
       <rect>
        <x>350</x>
-       <y>110</y>
+       <y>140</y>
        <width>101</width>
        <height>21</height>
       </rect>
@@ -748,12 +685,12 @@
       <string>Start</string>
      </property>
     </widget>
-    <widget class="QLabel" name="GroupA_Number_Label">
+    <widget class="QLabel" name="Trait_Info_Path_Label">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>161</width>
+       <width>211</width>
        <height>21</height>
       </rect>
      </property>
@@ -766,58 +703,37 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;#Sample in GroupA =&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;A CSV file for trait information&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="GroupA_Number_Edit">
+    <widget class="QLineEdit" name="Trait_Info_Path_Edit">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>220</x>
        <y>80</y>
-       <width>61</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>宋体</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="GroupB_Number_Label">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>80</y>
-       <width>161</width>
+       <width>171</width>
        <height>21</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>11</pointsize>
+       <pointsize>10</pointsize>
        <weight>50</weight>
        <bold>false</bold>
       </font>
      </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;#Sample in GroupB =&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="GroupB_Number_Edit">
+    <widget class="QPushButton" name="Trait_Info_Path_Button">
      <property name="geometry">
       <rect>
-       <x>390</x>
+       <x>400</x>
        <y>80</y>
-       <width>61</width>
-       <height>20</height>
+       <width>51</width>
+       <height>23</height>
       </rect>
      </property>
      <property name="font">
@@ -829,7 +745,53 @@
       </font>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>Select</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="Catagory_RadioButton">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>110</y>
+       <width>121</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Catagory Trait</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="Continuous_RadioButton">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>110</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Continuous Trait</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -1021,10 +983,8 @@
  <tabstops>
   <tabstop>OneClickRunningButton</tabstop>
   <tabstop>StepByStepRunningButton</tabstop>
-  <tabstop>GroupA_FASTAQ_Path_Edit</tabstop>
-  <tabstop>Open_GroupA_FASTAQ_Button</tabstop>
-  <tabstop>GroupB_FASTAQ_Path_Edit</tabstop>
-  <tabstop>Open_GroupB_FASTAQ_Button</tabstop>
+  <tabstop>Samples_FASTAQ_Path_Edit</tabstop>
+  <tabstop>Open_Samples_FASTAQ_Button</tabstop>
   <tabstop>K_Value_Edit</tabstop>
   <tabstop>CI_Value_Edit</tabstop>
   <tabstop>CS_Value_Edit</tabstop>
@@ -1035,8 +995,10 @@
   <tabstop>GM_GO_Button</tabstop>
   <tabstop>GM_Result_Path_Edit</tabstop>
   <tabstop>GM_Result_Path_Button</tabstop>
-  <tabstop>GroupA_Number_Edit</tabstop>
-  <tabstop>GroupB_Number_Edit</tabstop>
+  <tabstop>Trait_Info_Path_Edit</tabstop>
+  <tabstop>Trait_Info_Path_Button</tabstop>
+  <tabstop>Catagory_RadioButton</tabstop>
+  <tabstop>Continuous_RadioButton</tabstop>
   <tabstop>ASS_l_Value_Edit</tabstop>
   <tabstop>P_Value_Edit</tabstop>
   <tabstop>ASS_n_Value_Edit</tabstop>

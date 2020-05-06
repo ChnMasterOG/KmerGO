@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v5.1
-# modification date: 2019/12/12
+# version: v5.5
+# modification date: 2020/4/26
 
 import os, shutil
 import time
@@ -17,20 +17,25 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     path_list = param[2]
     Klen = param[3]
     fre_max_len = param[4]
-    Number_of_A_Group = param[5]
-    Number_of_B_Group = param[6]
-    KofZ = param[7]
-    fre_sum = param[8]
-    bufsize = param[9]
+    Number_of_Group = param[5]
+    head_list = param[6]
+    A_Name = param[7]
+    A_Number = param[8]
+    TI_dic = param[9]
+    KofZ = param[10]
+    fre_sum = param[11]
+    bufsize = param[12]
 
     # Memory exchange efficiency
-    Number_of_Group = Number_of_A_Group + Number_of_B_Group
-    no_zero_counter_thrA = (1 - Sparse_filter_threshold) * Number_of_A_Group
-    no_zero_counter_thrB = (1 - Sparse_filter_threshold) * Number_of_B_Group
+    if A_Name is not None:
+        no_zero_counter_thrA = (1 - Sparse_filter_threshold) * A_Number
+        no_zero_counter_thrB = (1 - Sparse_filter_threshold) * (Number_of_Group - A_Number)
+    else:
+        no_zero_counter_thrA = 0
+        no_zero_counter_thrB = 0
     next_Nprocess = Nprocess + NEXTprocess
     line_length = Klen + fre_max_len + 2
     Klen_and_1 = Klen + 1
-    Klen_and_2 = Klen_and_1 + 1
     KofZ_t0 = KofZ + '\t0'
     zero_matrix = ['0' for i in range(Number_of_Group)]
 
@@ -97,8 +102,6 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     wline = ['']
     progress = 0
     last_progress = 0
-    const_strlen_list = [Klen_and_1 + 2 * i for i in range(Number_of_Group)]
-    wline_strlen_list = const_strlen_list
 
     # open the output file
     try:
@@ -129,30 +132,35 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
 
     # start time
     last_time = time.time()
-    
+
+    # write head text
+    fout.write(('\t'.join(head_list) + '\n').encode('utf-8'))
+    head_list = head_list[1:]
+
     try:
         # main loop
         while True:
             min_index = losertree.getmin()
             min_index_and_1 = min_index + 1
             if min_kmer == s[min_index][:Klen]:  # new k-mer is equal to last k-mer
-                wline[min_index_and_1] = fre_str = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
-                if min_index < Number_of_A_Group:
-                    no_zero_counter1 += 1
-                else:
-                    no_zero_counter2 += 1
+                wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
+                if A_Name is not None:
+                    if TI_dic[head_list[min_index]] == A_Name:
+                        no_zero_counter1 += 1
+                    else:
+                        no_zero_counter2 += 1
             else:
-                if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
+                if (no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB) and wline != ['']:
                     fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
                 no_zero_counter1 = no_zero_counter2 = 0
-                wline_strlen_list = const_strlen_list
                 wline = [s[min_index][:Klen]]
                 wline.extend(zero_matrix)
                 wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
-                if min_index < Number_of_A_Group:
-                    no_zero_counter1 += 1
-                else:
-                    no_zero_counter2 += 1
+                if A_Name is not None:
+                    if TI_dic[head_list[min_index]] == A_Name:
+                        no_zero_counter1 += 1
+                    else:
+                        no_zero_counter2 += 1
             min_kmer = s[min_index][:Klen]
             s[min_index] = f[min_index].read(line_length).decode('utf-8')
             progress += line_length    # update progress
@@ -192,43 +200,69 @@ class GM_Thread(threading.Thread):
         self.status = 1
         self.loginfo = ''
         self.filesize = []
-        self.Number_of_A_Group = 0
-        self.Number_of_B_Group = 0
         self.path_list = []
         self.beacon_path_list = []
         self.kmc_result_path = GM_Param[0]
         self.gm_result_path = GM_Param[1]
         self.process_number = GM_Param[2]
-        self.Klen = GM_Param[3]
-        cs = GM_Param[4]
-        self.Number_of_A_Group = GM_Param[5]
-        self.Number_of_B_Group = GM_Param[6]
-        cs_len = 0
-        while cs > 0:
-            cs_len += 1
-            cs = int(cs / 10)
-        self.fre_max_len = cs_len
+        self.A_Name = GM_Param[3]
+        self.A_Number = GM_Param[4]
+        self.TI_dic = GM_Param[5]
+        self.fre_max_len = -1
         self.KofZ = ''
-        for i in range(self.Klen):
-            self.KofZ += 'Z'
-        self.Number_of_Group = self.Number_of_A_Group + self.Number_of_B_Group
+        self.Klen = -1
 
     def run(self):
         self.path_list = []
         self.beacon_path_list = []
         self.beacon_block_list = []
+        self.head_list = ['k-mer']
+        flist = []
         try:
-            for i in range(1, self.Number_of_A_Group + 1):
-                self.path_list.append(os.path.join(self.kmc_result_path, 'A' + str(i) + '.txt'))
-                self.beacon_path_list.append(os.path.join(self.kmc_result_path, 'A' + str(i) + '_beacon.txt'))
-                self.filesize.append(os.path.getsize(os.path.join(self.kmc_result_path, 'A' + str(i) + '.txt')))
-            for i in range(1, self.Number_of_B_Group + 1):
-                self.path_list.append(os.path.join(self.kmc_result_path, 'B' + str(i) + '.txt'))
-                self.beacon_path_list.append(os.path.join(self.kmc_result_path, 'B' + str(i) + '_beacon.txt'))
-                self.filesize.append(os.path.getsize(os.path.join(self.kmc_result_path, 'B' + str(i) + '.txt')))
+            for dir, folder, file in os.walk(self.kmc_result_path):
+                if dir == self.kmc_result_path:
+                    flist = file
+            for i in list(flist):
+                if i[-11:] == '_beacon.txt':
+                    self.beacon_path_list.append(os.path.join(self.kmc_result_path, i))
+                    if i[:-11] + '.txt' not in flist:
+                        self.status = -70
+                        self.loginfo = 'Missing some k-mer counting files.'
+                        return
+                    self.head_list.append(i[:-11])
+                    self.path_list.append(os.path.join(self.kmc_result_path, i[:-11] + '.txt'))
+                    self.filesize.append(os.path.getsize(os.path.join(self.kmc_result_path, i[:-11] + '.txt')))
+                    # read kmc files to set Klen and cslen
+                    ftmp = open(os.path.join(self.kmc_result_path, i[:-11] + '.txt'), 'r')
+                    firstline = ftmp.readline().strip()
+                    firstline = firstline.split('\t')
+                    if self.Klen != -1 and self.Klen != len(firstline[0]):
+                        ftmp.close()
+                        self.status = -80
+                        self.loginfo = 'K value error.'
+                        return
+                    else:
+                        self.Klen = len(firstline[0])
+                    if self.fre_max_len != -1 and self.fre_max_len != len(firstline[1]):
+                        ftmp.close()
+                        self.status = -81
+                        self.loginfo = 'Cs value error.'
+                        return
+                    else:
+                        self.fre_max_len = len(firstline[1])
+                    ftmp.close()
         except:
             self.status = -3
             self.loginfo = 'Can not open some KMC result files.'
+            return
+
+        self.KofZ = ''
+        for i in range(self.Klen):
+            self.KofZ += 'Z'
+
+        if len(self.beacon_path_list) != len(self.path_list):
+            self.status = -15
+            self.loginfo = 'Files\' number is wrong.'
             return
 
         # create the temp folder
@@ -242,9 +276,9 @@ class GM_Thread(threading.Thread):
 
         # get each block size
         fre_sum = []
-        beacon_line = [[0 for j in range(self.process_number + 1)] for i in range(self.Number_of_Group)]
-        block_size = [[0 for j in range(self.Number_of_Group)] for i in range(self.process_number)]
-        for i in range(self.Number_of_Group):
+        beacon_line = [[0 for j in range(self.process_number + 1)] for i in range(len(self.path_list))]
+        block_size = [[0 for j in range(len(self.path_list))] for i in range(self.process_number)]
+        for i in range(len(self.path_list)):
             try:
                 f_beacon = open(self.beacon_path_list[i], 'r')
             except:
@@ -278,9 +312,9 @@ class GM_Thread(threading.Thread):
 
         # normalization coefficient
         tmp = -5
-        for i in range(self.Number_of_Group):
+        for i in range(len(self.path_list)):
             tmp = max(tmp, len(str(fre_sum[i])) - 4)
-        for i in range(self.Number_of_Group):
+        for i in range(len(self.path_list)):
             if tmp > 0:
                 fre_sum[i] = fre_sum[i] / (10 ** tmp)
             elif tmp < 0:
@@ -288,7 +322,8 @@ class GM_Thread(threading.Thread):
 
         # the multiprocess runs
         process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen, self.fre_max_len,
-                         self.Number_of_A_Group, self.Number_of_B_Group, self.KofZ, fre_sum, 4096]
+                         len(self.path_list), self.head_list, self.A_Name, self.A_Number, self.TI_dic, self.KofZ,
+                         fre_sum, 4096]
         self.jobs = [Process(target = get_Son_Matrix,
                              args = (self.beacon_block_list[i], self.beacon_block_list[i + 1] - self.beacon_block_list[i],
                                      process_param))
@@ -333,7 +368,7 @@ class GM_Thread(threading.Thread):
         progress_now = [0 for i in range(self.process_number)]
         if self.status == 2:
             if len(progresslist) < self.process_number:
-                self.status = -10
+                self.status = -11
                 self.loginfo = 'Missing progress files.'
                 return progress_now
         else:

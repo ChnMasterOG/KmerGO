@@ -1,24 +1,28 @@
 # coding = utf-8
 # author: QiChen
-# version: v4.5
-# modification date: 2019/12/5
+# version: v4.7
+# modification date: 2020/4/26
 
 import os
 import time
 import threading
 from scipy import stats
 import numpy as np
+import pandas as pd
 from multiprocessing import Process
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
-def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
+def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
     Number_of_A_Group = param[0]
     Number_of_B_Group = param[1]
-    ass_l = param[2]
-    wicxon_p = param[3]
-    ass_n = param[4]
-    bufsize = param[5]
+    A_Name = param[2]
+    B_Name = param[3]
+    TI_dic = param[4]
+    ass_l = param[5]
+    wicxon_p = param[6]
+    ass_n = param[7]
+    bufsize = param[8]
 
     try:
         fi = open(input_path, 'r')
@@ -35,7 +39,14 @@ def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
     # variate initialization
     progress = 0
     last_progress = 0
+    headtext = fi.readline().strip()
+    headlist = headtext.split('\t')
+    headlist = headlist[1:]
     strline = fi.readline()
+
+    # write head text
+    fo1.write(headtext + '\tASS\tLabel\n')
+    fo2.write(headtext + '\tASS-l\tP\tASS-n\tLabel\n')
 
     # start time
     last_time = time.time()
@@ -45,7 +56,6 @@ def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
         st = strline.find('\t') + 1
         si = strline[st:-1]
         si = si.split('\t')
-        so = strline[:st]
         tp = 0
         fn = 0
         group1 = []
@@ -54,8 +64,7 @@ def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
         # logical filtering
         for i in range(len(si)):
             nor_value = float(si[i])
-            so += str(nor_value) + '\t'
-            if i < Number_of_A_Group:
+            if TI_dic[headlist[i]] == A_Name:
                 group1.append(nor_value)
                 label_Y.append(0)
                 if si[i] != '0':
@@ -65,17 +74,16 @@ def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
                 label_Y.append(1)
                 if si[i] != '0':
                     fn += 1
-        so = so[:-1]
         ASStrue = tp / Number_of_A_Group + (Number_of_B_Group - fn) / Number_of_B_Group
         ASStrue /= 2
         if ASStrue > 1 - ASStrue:
-            label = 'A'
+            label = A_Name
         else:
             ASStrue = 1 - ASStrue
-            label = 'B'
+            label = B_Name
         if ASStrue >= ass_l:
-            fo1.write(so)
-            fo1.write('\tLogical ASS:' + str(ASStrue) + '\tlabel:' + str(label) + '\n')
+            fo1.write(strline[:-1])
+            fo1.write('\t' + str(ASStrue) + '\t' + label + '\n')
         else:
             # numerical filtering
             (Zvalue, Pvalue) = stats.ranksums(group1, group2)
@@ -91,12 +99,87 @@ def feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
                             float(Number_of_B_Group))
                 if cc >= ass_n:
                     if np.mean(group1) > np.mean(group2):
-                        label = 'A'
+                        label = A_Name
                     else:
-                        label = 'B'
-                    fo2.write(so)
-                    fo2.write('\tLogical_ASS:' + str(ASStrue) + '\tWilcoxon_p:' + str(Pvalue) + '\tNumerical_ASS:' +
-                              str(cc) + '\tlabel:' + str(label) + '\n')
+                        label = B_Name
+                    fo2.write(strline[:-1])
+                    fo2.write('\t' + str(ASStrue) + '\t' + str(Pvalue) + '\t' + str(cc) + '\t' + label + '\n')
+        progress += len(strline)     # update the progress
+        if time.time() - last_time >= 1:    # output the progress file per second
+            os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
+                      os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(progress)))
+            last_progress = progress
+            last_time = time.time()
+        strline = fi.readline()
+
+    # progress 100%
+    os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
+              os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(progress)))
+
+    # close file
+    fi.close()
+    fo1.close()
+    fo2.close()
+
+def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
+    TI_dic = param[0]
+    wicxon_p = param[1]
+    corr_value = param[2]
+    bufsize = param[3]
+
+    try:
+        fi = open(input_path, 'r')
+    except:
+        open(os.path.join('temp', 'GF_error_status=-1'), 'w')
+        return
+    try:
+        fo1 = open(output_path1,'w', buffering=bufsize)
+        fo2 = open(output_path2, 'w', buffering=bufsize)
+    except:
+        open(os.path.join('temp', 'GF_error_status=-2'), 'w')
+        return
+
+    # variate initialization
+    progress = 0
+    last_progress = 0
+    headtext = fi.readline().strip()
+    headlist = headtext.split('\t')
+    headlist = headlist[1:]
+    strline = fi.readline()
+
+    # write head text
+    fo1.write(headtext + '\tP\n')
+    fo2.write(headtext + '\tP\tCorr\n')
+
+    # start time
+    last_time = time.time()
+
+    # main loop
+    while strline != '':
+        st = strline.find('\t') + 1
+        si = strline[st:-1]
+        si = si.split('\t')
+        kmer_fre = []
+        group1 = []
+        group2 = []
+        # logical filtering
+        for i in range(len(si)):
+            kmer_fre.append(float(si[i]))
+            if si[i] == '0':
+                group1.append(float(TI_dic[headlist[i]]))
+            else:
+                group2.append(float(TI_dic[headlist[i]]))
+        (Zvalue, Pvalue) = stats.ranksums(group1, group2)
+        if Pvalue < wicxon_p:
+            fo1.write(strline[:-1])
+            fo1.write('\t' + str(Pvalue) + '\n')
+        else:
+            df = pd.DataFrame({'Kmer':kmer_fre, 'Trait':group1+group2})
+            corr = df.corr('spearman')['Kmer'][1]
+            if corr >= corr_value:
+                fo2.write(strline[:-1])
+                fo2.write('\t' + str(Pvalue) + '\t' + str(corr) + '\n')
+
         progress += len(strline)     # update the progress
         if time.time() - last_time >= 1:    # output the progress file per second
             os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
@@ -126,6 +209,11 @@ class GF_Thread(threading.Thread):
         self.ass_n_value = GF_Param[4]
         self.Number_of_A_Group = GF_Param[5]
         self.Number_of_B_Group = GF_Param[6]
+        self.GroupA_Name = GF_Param[7]
+        self.GroupB_Name = GF_Param[8]
+        self.TI_dic = GF_Param[9]
+        self.corr_value = GF_Param[10]
+        self.Catagory_Mode = GF_Param[11]
         self.filesize = []
         self.file_path = []
         self.files_number = 0
@@ -154,14 +242,23 @@ class GF_Thread(threading.Thread):
             open(os.path.join('temp', 'GF_progress' + str(i) + ' 0'), 'w')
 
         # the multiprocess runs
-        process_param = [self.Number_of_A_Group, self.Number_of_B_Group, self.ass_l_value,
-                         self.p_value, self.ass_n_value, 4096]
-        self.jobs = [Process(target=feature_filtering,
-                        args=(i, self.file_path[i],
-                              os.path.join(self.gf_result_path, 'logical_' + str(i) + '.txt'),
-                              os.path.join(self.gf_result_path, 'numeric_' + str(i) + '.txt'),
-                              process_param))
-                for i in range(self.files_number)]
+        catagory_param = [self.Number_of_A_Group, self.Number_of_B_Group, self.GroupA_Name, self.GroupB_Name,
+                          self.TI_dic, self.ass_l_value, self.p_value, self.ass_n_value, 4096]
+        continuous_param = [self.TI_dic, self.p_value, self.corr_value, 4096]
+        if self.Catagory_Mode == True:
+            self.jobs = [Process(target=Catagory_feature_filtering,
+                            args=(i, self.file_path[i],
+                                  os.path.join(self.gf_result_path, 'catagory_l_' + str(i) + '.txt'),
+                                  os.path.join(self.gf_result_path, 'catagory_n_' + str(i) + '.txt'),
+                                  catagory_param))
+                    for i in range(self.files_number)]
+        else:
+            self.jobs = [Process(target=Continuous_feature_filtering,
+                            args=(i, self.file_path[i],
+                                  os.path.join(self.gf_result_path, 'continuous_l_' + str(i) + '.txt'),
+                                  os.path.join(self.gf_result_path, 'continuous_n_' + str(i) + '.txt'),
+                                  continuous_param))
+                    for i in range(self.files_number)]
         self.status = 2
         for j in self.jobs:
             j.start()

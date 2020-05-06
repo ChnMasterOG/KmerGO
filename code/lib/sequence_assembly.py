@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v2.1
-# modification date: 2020/3/19
+# version: v2.2
+# modification date: 2020/4/26
 # assembly tool: cap3
 
 import os, sys
@@ -27,6 +27,10 @@ class KA_Thread(threading.Thread):
             self.loginfo = 'Missing some feature files.'
         elif self.status == -3:
             self.loginfo = 'Missing the result folder.'
+        elif self.status == -5:
+            self.loginfo = 'Files format error.'
+        elif self.status == -10:
+            self.loginfo = 'No group-specific k-mer.'
         elif self.status == -999:
             self.loginfo = 'There are some errors when CAP3 is running.'
 
@@ -43,17 +47,42 @@ class KA_Thread(threading.Thread):
             foB = open(os.path.join(result_path, 'Bfeatures.fa'), 'w', buffering=4096)
         except:
             return -3
+        NameA = ''
+        NameB = ''
         countA = 0
         countB = 0
-        block_number = int(len(os.listdir(gf_path)) / 2)
-        for i in range(block_number):
+        filtering_mode = 0
+        flist = []
+        counter = 0
+        for dir, folder, file in os.walk(gf_path):
+            if dir == gf_path:
+                flist = file
+        for fpath in flist:
+            counter += 1
             try:
-                fi = open(os.path.join(gf_path, 'logical_' + str(i) + '.txt'), 'r')
+                fi = open(os.path.join(gf_path, fpath), 'r')
             except:
                 return -2
-            s = fi.readline()
+            if fpath[:8] == 'catagory':  # Catagory data
+                if counter != 1 and filtering_mode == 1:
+                    return -5
+                filtering_mode = 0
+            else:  # Continuous data
+                if counter != 1 and filtering_mode == 0:
+                    return -5
+                filtering_mode = 1
+            fi.readline()   # skip headtext
+            s = fi.readline().strip()
             while s != '':
-                if s[-2] == 'A':
+                if filtering_mode == 0:
+                    label = s.split('\t')[-1]
+                else:
+                    label = 'Result'
+                if NameA == '':
+                    NameA = label
+                elif NameB == '' and NameA != label:
+                    NameB = label
+                if label == NameA:
                     countA += 1
                     foA.write('>' + str(countA) + '\n')
                     foA.write(s[:s.find('\t')] + '\n')
@@ -61,26 +90,21 @@ class KA_Thread(threading.Thread):
                     countB += 1
                     foB.write('>' + str(countB) + '\n')
                     foB.write(s[:s.find('\t')] + '\n')
-                s = fi.readline()
-            fi.close()
-            try:
-                fi = open(os.path.join(gf_path, 'numeric_' + str(i) + '.txt'), 'r')
-            except:
-                return -2
-            s = fi.readline()
-            while s != '':
-                if s[-2] == 'H':
-                    countA += 1
-                    foA.write('>' + str(countA) + '\n')
-                    foA.write(s[:s.find('\t')] + '\n')
-                else:
-                    countB += 1
-                    foB.write('>' + str(countB) + '\n')
-                    foB.write(s[:s.find('\t')] + '\n')
-                s = fi.readline()
+                s = fi.readline().strip()
             fi.close()
         foA.close()
         foB.close()
+
+        if NameA != '':
+            os.rename(os.path.join(result_path, 'Afeatures.fa'), os.path.join(result_path, NameA + '.fa'))
+        else:
+            os.remove(os.path.join(result_path, 'Afeatures.fa'))
+        if NameB != '':
+            os.rename(os.path.join(result_path, 'Bfeatures.fa'), os.path.join(result_path, NameB + '.fa'))
+        else:
+            os.remove(os.path.join(result_path, 'Bfeatures.fa'))
+        if NameA == '' and NameB == '':
+            return -10
 
         # using the cap3 tool
         if system_platform == 'Windows':
@@ -91,9 +115,15 @@ class KA_Thread(threading.Thread):
         else:
             return -1  # the system is not supported
 
-        r1 = os.system(cap3_command + os.path.join(result_path, 'Afeatures.fa') + self.cmdOption)
+        if NameA != '':
+            r1 = os.system(cap3_command + os.path.join(result_path, NameA + '.fa') + self.cmdOption)
+        else:
+            r1 = -1
 
-        r2 = os.system(cap3_command + os.path.join(result_path, 'Bfeatures.fa') + self.cmdOption)
+        if NameB != '':
+            r2 = os.system(cap3_command + os.path.join(result_path, NameB + '.fa') + self.cmdOption)
+        else:
+            r2 = -1
         
         if r1 != 0 and r2 != 0:
             return 0 / 0
