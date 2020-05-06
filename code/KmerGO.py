@@ -4,7 +4,6 @@
 # modification date: 2020/5/6
 
 import sys, os, shutil, csv
-import time
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from collections import Counter
@@ -158,7 +157,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.project_dir = self.project_dir.replace('/', '\\')
         elif system_platform == 'Linux':
             self.project_dir = self.project_dir.replace('\\', '/')
-        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath:' + self.project_dir)
+        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath: ' + self.project_dir)
         try:
             os.mkdir(os.path.join(self.project_dir, 'kmer_countings'))
         except:
@@ -197,7 +196,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.KMC_GO_Button.setEnabled(True)
         self.new_window.GM_GO_Button.setEnabled(True)
         self.new_window.GF_GO_Button.setEnabled(True)
-        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath:' + self.project_dir)
+        self.setWindowTitle(tool_name + ' ' + project_version + ' Workpath: ./')
         self.ReadConfiguration()
 
     def Open_Samples_FASTAQ_Button_Clicked(self):

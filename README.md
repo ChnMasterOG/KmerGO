@@ -111,7 +111,7 @@ If you want obtain the K-mer filtering features using the K-mer union matrixes i
 
 (2) Select the trait type (catagory or continuous).
 
-(3) Select "A CSV file for trait information".
+(3) Select "A CSV file of trait information".
 
 (4) Select "K-mer feature files path" of output features path.
 

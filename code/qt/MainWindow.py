@@ -493,7 +493,7 @@ class Ui_MainWindow(object):
         self.ASS_n_Value_Label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">ASS-n =</p></body></html>"))
         self.ASS_n_Value_Edit.setText(_translate("MainWindow", "0.80"))
         self.GF_GO_Button.setText(_translate("MainWindow", "Start"))
-        self.Trait_Info_Path_Label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">A CSV file for trait information</p></body></html>"))
+        self.Trait_Info_Path_Label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">A CSV file of trait information</p></body></html>"))
         self.Trait_Info_Path_Button.setText(_translate("MainWindow", "Select"))
         self.Catagory_RadioButton.setText(_translate("MainWindow", "Catagory Trait"))
         self.Continuous_RadioButton.setText(_translate("MainWindow", "Continuous Trait"))
