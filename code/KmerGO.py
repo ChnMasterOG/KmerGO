@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/5/6
+# modification date: 2020/5/8
 
 import sys, os, shutil, csv
 if hasattr(sys, 'frozen'):
@@ -639,15 +639,19 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.projectfile.KA_OK = True
                 self.new_window.KA_Project_Status_Label.setText('Status: Complete')
                 self.new_window.KA_Project_Status_Label.setStyleSheet('color:green')
-                QtWidgets.QMessageBox.information(self, 'Success', 'Result files are stored in: ' +
-                                                  os.path.join(self.project_dir, 'contig_result'),
-                                                  QtWidgets.QMessageBox.Yes)
+                if self.mode == 1:
+                    QtWidgets.QMessageBox.information(self, 'Success', 'Result files are stored in: ' +
+                                                      os.path.join(self.project_dir, 'contig_result'),
+                                                      QtWidgets.QMessageBox.Yes)
+                else:
+                    QtWidgets.QMessageBox.information(self, 'Success', 'Done!\nResult files are stored in: ' +
+                                                      os.path.join(self.project_dir, 'contig_result'),
+                                                      QtWidgets.QMessageBox.Yes)
             else:
                 self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
                 self.new_window.KA_Project_Status_Label.setStyleSheet('color:red')
             del self.ka_thread     # free up memery
             self.ka_timer.stop()
-            #self.StepByStepRunningButton_Clicked()  # default step-by-step running
         else:
             self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
             self.new_window.KA_Project_Status_Label.setStyleSheet('color:blue')

@@ -133,7 +133,7 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_cap3.gif)
 
-## Trait information format
+## Trait information file format
 
 **Catagory Trait**
 
@@ -185,4 +185,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2020-05-06
+Last update: 2020-05-08

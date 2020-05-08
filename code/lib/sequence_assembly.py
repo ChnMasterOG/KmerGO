@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v2.2
-# modification date: 2020/4/26
+# modification date: 2020/5/8
 # assembly tool: cap3
 
 import os, sys
@@ -96,11 +96,11 @@ class KA_Thread(threading.Thread):
         foB.close()
 
         if NameA != '':
-            os.rename(os.path.join(result_path, 'Afeatures.fa'), os.path.join(result_path, NameA + '.fa'))
+            os.rename(os.path.join(result_path, 'Afeatures.fa'), os.path.join(result_path, NameA + '_specific.fa'))
         else:
             os.remove(os.path.join(result_path, 'Afeatures.fa'))
         if NameB != '':
-            os.rename(os.path.join(result_path, 'Bfeatures.fa'), os.path.join(result_path, NameB + '.fa'))
+            os.rename(os.path.join(result_path, 'Bfeatures.fa'), os.path.join(result_path, NameB + '_specific.fa'))
         else:
             os.remove(os.path.join(result_path, 'Bfeatures.fa'))
         if NameA == '' and NameB == '':
@@ -116,12 +116,14 @@ class KA_Thread(threading.Thread):
             return -1  # the system is not supported
 
         if NameA != '':
-            r1 = os.system(cap3_command + os.path.join(result_path, NameA + '.fa') + self.cmdOption)
+            r1 = os.system(cap3_command + os.path.join(result_path, NameA + '_specific.fa') + self.cmdOption)
+            os.rename(os.path.join(result_path, NameA + '_specific.fa'), os.path.join(result_path, NameA + '_specific_kmer.fa'))
         else:
             r1 = -1
 
         if NameB != '':
-            r2 = os.system(cap3_command + os.path.join(result_path, NameB + '.fa') + self.cmdOption)
+            r2 = os.system(cap3_command + os.path.join(result_path, NameB + '_specific.fa') + self.cmdOption)
+            os.rename(os.path.join(result_path, NameB + '_specific.fa'), os.path.join(result_path, NameB + '_specific_kmer.fa'))
         else:
             r2 = -1
         
