@@ -32,7 +32,9 @@ After that, you can double-click **KmerGO.exe** to run it.
 
 KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip) to download the Linux version of KmerGO.
+And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip) to download the Linux GUI version of KmerGO.
+
+Or you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.cmd.zip) to download the Linux command version of KmerGO.
 
 Decompress the file and enter the software path.
 
@@ -41,7 +43,13 @@ Type these commands if you first use KmerGO:
 > sudo chmod +x KmerGO  
 > sudo chmod +x ./bin/*
 
-After that, you can type "**./KmerGO**" to run it.
+For GUI version:
+
+You can type "**./KmerGO**" to run it.
+
+For CMD version:
+
+You can type "**./KmerGO [optional options] -i <input_files_folder> -t <input_trait_information>**" to run it.
 
 ### Test data
 
@@ -49,7 +57,7 @@ We prepared some FASTA format files which are stored in "test_data/samples" for 
 
 And trait files can be also found in folder "test_data".
 
-## Usage
+## Usage for GUI
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/user_interface.png"/ width="484" height="638">
@@ -133,6 +141,27 @@ If you want obtain sequences assembly using the K-mer features independently, yo
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_cap3.gif)
 
+## Usage for CMD
+
+Now, command version of KmerGO only has END-TO-END mode. The main running command is *`./KmerGO`* with following options:
+
+short option | long option | required | description 
+:----------: | :---------: | :------: | :---------:  
+-h           | --help      | No       | show the help message and exit 
+-i           | /           | Yes      | sample files path 
+-t           | /           | Yes      | a csv file path of trait information 
+-m           | --mode      | No       | mode: 0-catagory, 1-continuous (default: 0) 
+-k           | --kmerlength| No       | k-mer length (k from 14 to 256; default: 40) 
+-ci          | /           | No       | minimal K-mer occurring times (default: 2) 
+-cs          | /           | No       | maximal K-mer occurring times (default: 65535) 
+-n           | /           | No       | number of processes (default: 24) 
+-assl        | /           | No       | when mode = 0, logical features ASS value (default: 0.8) 
+-p           | /           | No       | numeric(mode=0) or logical(mode=1) features rank sum test p threshold value (default: 0.01) 
+-assn        | /           | No       | when mode = 0, numeric features logistic regression ASS value (default: 0.8) 
+-corr        | /           | No       | when mode = 1, numeric features coefficient of association ρ threshold value (default: 0.8) 
+
+Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/catagory\ trait\ information.csv`*
+
 ## Trait information file format
 
 **Catagory Trait**
@@ -185,4 +214,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2020-05-08
+Last update: 2020-05-20
