@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v5.5
-# modification date: 2020/4/26
+# version: v5.6
+# modification date: 2020/5/22
 
 import os, shutil
 import time
@@ -29,7 +29,10 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     # Memory exchange efficiency
     if A_Name is not None:
         no_zero_counter_thrA = (1 - Sparse_filter_threshold) * A_Number
-        no_zero_counter_thrB = (1 - Sparse_filter_threshold) * (Number_of_Group - A_Number)
+        if A_Name == '':
+            no_zero_counter_thrB = 1
+        else:
+            no_zero_counter_thrB = (1 - Sparse_filter_threshold) * (Number_of_Group - A_Number)
     else:
         no_zero_counter_thrA = 0
         no_zero_counter_thrB = 0
@@ -145,10 +148,13 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
             if min_kmer == s[min_index][:Klen]:  # new k-mer is equal to last k-mer
                 wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
                 if A_Name is not None:
-                    if TI_dic[head_list[min_index]] == A_Name:
+                    if A_Name == '':
                         no_zero_counter1 += 1
                     else:
-                        no_zero_counter2 += 1
+                        if TI_dic[head_list[min_index]] == A_Name:
+                            no_zero_counter1 += 1
+                        else:
+                            no_zero_counter2 += 1
             else:
                 if (no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB) and wline != ['']:
                     fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
@@ -157,10 +163,13 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                 wline.extend(zero_matrix)
                 wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
                 if A_Name is not None:
-                    if TI_dic[head_list[min_index]] == A_Name:
+                    if A_Name == '':
                         no_zero_counter1 += 1
                     else:
-                        no_zero_counter2 += 1
+                        if TI_dic[head_list[min_index]] == A_Name:
+                            no_zero_counter1 += 1
+                        else:
+                            no_zero_counter2 += 1
             min_kmer = s[min_index][:Klen]
             s[min_index] = f[min_index].read(line_length).decode('utf-8')
             progress += line_length    # update progress

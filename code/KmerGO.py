@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/5/8
+# modification date: 2020/5/22
 
 import sys, os, shutil, csv
 if hasattr(sys, 'frozen'):
@@ -403,6 +403,10 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
                                                     self.projectfile.Process_value, self.projectfile.GroupA_Name,
                                                     self.projectfile.GroupA_Number, self.projectfile.TI_dic))
+        elif self.static_mode == 0 and self.new_window.Catagory_RadioButton.isChecked() is False:
+            self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
+                                                    self.projectfile.Process_value, '',
+                                                    len(self.projectfile.TI_dic), self.projectfile.TI_dic))
         else:
             self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
                                                    self.projectfile.Process_value, None, None, None))
