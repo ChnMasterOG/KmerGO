@@ -1,22 +1,20 @@
 # KmerGO
 
-KmerGO is a user-friendly tool to identify the group-specific sequences on two groups of high throughput sequencing datasets. A sequence that is present, or rich, in one group, but absent, or scarce, in another group is considered “group-specific” here.
+**KmerGO is a user-friendly tool to identify the group-specific sequences on two groups of high throughput sequencing datasets. A sequence that is present, or rich, in one group, but absent, or scarce, in another group is considered “group-specific” here. Furthermore, KmerGO can also be applied to capture trait-associated sequences for continuous-trait dataset.**
 
-Compared with other tools, KmerGO have the following advantages:
+**Compared with other tools, KmerGO have the following advantages:**
 
-1.KmerGO offers graphic interface under Windows and Linux with one-click installation free from environmental settings.
+1. KmerGO offers both graphic user interface (GUI) under Windows & Linux and command line (CL) mode under Linux, with one-click installation free from environmental settings.
 
-2.KmerGO is able to capture the long group-specific k-mers (k up to 40bps) with much lower requirements for computing resource in much shorter running time.
+2. KmerGO is able to capture the group-specific k-mers (k up to 40bps) for categorical dataset and trait-associated k-mers for continuous-trait dataset with much lower requirements for computing resource in much shorter running time.
 
-3.Users can run KmerGO by one-click mode or step-by-step mode and use the output group-specific k-mers or sequences to be the input of other tools for the following discovery of biomarkers, such as genetic variants, species or genes.
+3. Users can run KmerGO by one-click mode or step-by-step mode and use the output group-specific k-mers or sequences to be the input of other tools for the following discovery of biomarkers, such as genetic variants, species or genes.
 
-In our experiment, through multi-processes parallel computing, KmerGO is able to capture all the group-specific k-mers (k up to 40bps) for 1.07 TB data in fasta format on a regular standalone server(Intel(R) Xeon(R) E5-2620 v4 @ 2.10GHz) in 21.5 hours, including 4 hours Kmer counting with KMC[https://academic.oup.com/bioinformatics/article/33/17/2759/3796399] and 17.5 hours(16 processes number) group-specific kmer identification, and return the assembled group-specific sequences.
+In our experiment, through multi-processes parallel computing, KmerGO is able to capture all the group-specific k-mers (k up to 40bps) for 1.07 TB data in fasta format on a regular standalone server(Intel(R) Xeon(R) E5-2620 v4 @ 2.10GHz) in 21.5 hours, including 4 hours Kmer counting with KMC[http://sun.aei.polsl.pl/REFRESH/kmc] and 17.5 hours(16 processes number) group-specific kmer identification, and return the assembled group-specific sequences.
 
 ## Running on two operation systems
 
 KmerGO can be run directly on Windows and Linux operating systems, without extra enviromental settings or configurations.
-
-**Attention: We recommend that you use parameters "k=25 MinValue=1" and set other parameters as default to run test data**
 
 ### Running on Windows
 
@@ -32,9 +30,9 @@ After that, you can double-click **KmerGO.exe** to run it.
 
 KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15 (64 bits).
 
-And you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip) to download the Linux GUI version of KmerGO.
+- Download the Linux GUI version of KmerGO: [download link](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip).
 
-Or you can click [here](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.cmd.zip) to download the Linux command version of KmerGO.
+- Download the Linux command version of KmerGO: [download link](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.cmd.zip).
 
 Decompress the file and enter the software path.
 
@@ -43,19 +41,21 @@ Type these commands if you first use KmerGO:
 > sudo chmod +x KmerGO  
 > sudo chmod +x ./bin/*
 
-For GUI version:
+- **For GUI version:**
 
-You can type "**./KmerGO**" to run it.
+You can type *`./KmerGO`* to run it.
 
-For CMD version:
+- **For CMD version:**
 
-You can type "**./KmerGO [optional options] -i <input_files_folder> -t <input_trait_information>**" to run it.
+You can type *`./KmerGO [optional options] -i <input_files_folder> -t <input_trait_information>`* to run it.
 
 ### Test data
 
-We prepared some FASTA format files which are stored in "test_data/samples" for One-Click testing.
+We prepared some FASTA format files which are stored in "test_data/samples".
 
 And trait files can be also found in folder "test_data".
+
+Because the small size of testing data, **"k=25 MinValue=1" and other parameters as defaults are recommended**.
 
 ## Usage for GUI
 
@@ -63,7 +63,7 @@ And trait files can be also found in folder "test_data".
   <img src="https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/user_interface.png"/ width="484" height="638">
 </p>
 
-**There are four modules in KmerGO**: 1.K-mer counting, 2.K-mer counting union matrix, 3.K-mer features filtering, 4.K-mers assembly. And you can use these four modules to identify the group-specific sequences on two groups or use any module to calculate separately.
+**There are four modules in KmerGO**: 1.K-mer counting, 2.K-mer counting union matrix, 3.K-mer features filtering, 4.K-mers assembly. And you can use one-click running to identify the group-specific sequences or separate-module running to obtain some midway results.
 
 ### One-Click Running
 
@@ -71,7 +71,7 @@ As shown in the following Gif, You should first select a workpath folder of work
 
 After that, you can set the parameters and press the button "One-Click Start" to start the running. KmerGO can execute all steps automatically if there are no errors.
 
-**a) catagory trait type**
+**a) catagorical trait type**
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_catagory_mode.gif)
 
@@ -83,7 +83,7 @@ And the result files will be created in "{$workpath}/contig_result" folder.
 
 ### Running modules separately
 
-**1. KMC operation**
+**1. K-mer counting**
 
 If you want obtain the K-mer occurring times using the short reads of FASTA/Q format files independently, you can set it up according to the following steps:
 
@@ -97,7 +97,7 @@ If you want obtain the K-mer occurring times using the short reads of FASTA/Q fo
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_kmc.gif)
 
-**2. Union operation**
+**2. K-mer counting union matrix**
 
 If you want obtain the K-mer matrixes in different samples using sorted K-mer occurring times independently, you can set it up according to the following steps:
 
@@ -111,13 +111,13 @@ If you want obtain the K-mer matrixes in different samples using sorted K-mer oc
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_union.gif)
 
-**3. Filtering operation**
+**3. K-mer features filtering**
 
 If you want obtain the K-mer filtering features using the K-mer union matrixes independently, you can set it up according to the following steps:
 
 (1) Select "KMC matrix files path" of input matrixes path.
 
-(2) Select the trait type (catagory or continuous).
+(2) Select the trait type (catagorical or continuous).
 
 (3) Select "A CSV file of trait information".
 
@@ -129,7 +129,7 @@ If you want obtain the K-mer filtering features using the K-mer union matrixes i
 
 ![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/step_filtering.gif)
 
-**4. CAP3 operation**
+**4. K-mers assembly**
 
 If you want obtain sequences assembly using the K-mer features independently, you can set it up according to the following steps:
 
@@ -164,7 +164,7 @@ Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/cata
 
 ## Trait information file format
 
-**Catagory Trait**
+**Catagorical Trait**
 
 Example1:
 
@@ -203,6 +203,8 @@ SRR2,2.35
 SRR3,5.22
 
 ...
+
+**Templates can be also found in the folder "test_data".**
 
 ## Contacts and bug reports
 
