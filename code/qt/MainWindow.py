@@ -336,7 +336,7 @@ class Ui_MainWindow(object):
         self.Trait_Info_Path_Button.setFont(font)
         self.Trait_Info_Path_Button.setObjectName("Trait_Info_Path_Button")
         self.Catagorical_RadioButton = QtWidgets.QRadioButton(self.GF_GroupBox)
-        self.Catagorical_RadioButton.setGeometry(QtCore.QRect(60, 110, 121, 21))
+        self.Catagorical_RadioButton.setGeometry(QtCore.QRect(60, 110, 131, 21))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(False)

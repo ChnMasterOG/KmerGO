@@ -73,7 +73,7 @@ After that, you can set the parameters and press the button "One-Click Start" to
 
 **a) catagorical trait type**
 
-![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_catagory_mode.gif)
+![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_catagorical_mode.gif)
 
 **b) continuous trait type**
 
@@ -150,7 +150,7 @@ short option | long option | required | description
 -h           | --help      | No       | show the help message and exit 
 -i           | /           | Yes      | sample files path 
 -t           | /           | Yes      | a csv file path of trait information 
--m           | --mode      | No       | mode: 0-catagory, 1-continuous (default: 0) 
+-m           | --mode      | No       | mode: 0-catagorical, 1-continuous (default: 0) 
 -k           | --kmerlength| No       | k-mer length (k from 14 to 256; default: 40) 
 -ci          | /           | No       | minimal K-mer occurring times (default: 2) 
 -cs          | /           | No       | maximal K-mer occurring times (default: 65535) 
@@ -160,7 +160,7 @@ short option | long option | required | description
 -assn        | /           | No       | when mode = 0, numeric features logistic regression ASS value (default: 0.8) 
 -corr        | /           | No       | when mode = 1, numeric features coefficient of association ρ threshold value (default: 0.8) 
 
-Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/catagory\ trait\ information.csv`*
+Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/catagorical\ trait\ information.csv`*
 
 ## Trait information file format
 
