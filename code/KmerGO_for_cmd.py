@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/6/5
+# modification date: 2020/7/2
 
 import sys, os, shutil, argparse, csv
 if hasattr(sys, 'frozen'):
@@ -47,15 +47,15 @@ def Check_csv_validity(param):
             else:
                 TI_dic[row[0]] = row[1]
     except:
-        print('Error! Can not read the CSV file!')
+        print('Error! Can not read the CSV file!', flush=True)
         return -1
     if len(TI_dic) == 0:
-        print('Error! No samples!')
+        print('Error! No samples!', flush=True)
         return -1
     if param.mode == 0:
         counter_dic = Counter(TI_dic.values())
         if len(counter_dic) != 2:
-            print('Error! Group number must be 2!')
+            print('Error! Group number must be 2!', flush=True)
             return -1
         else:
             GroupA_Name = list(counter_dic.keys())[0]
@@ -69,7 +69,7 @@ def Check_csv_validity(param):
             try:
                 float(v)
             except:
-                print('Error! Trait must be a float type!')
+                print('Error! Trait must be a float type!', flush=True)
                 return -1
         return 0
 
@@ -79,18 +79,19 @@ def KMC_GO(param):
                                       'kmer_countings'))
     kmc_thread.start()
     last_info = ''
-    print('Step1: k-mer counting')
+    print('Step1: k-mer counting', flush=True)
     while True:
         if kmc_thread.status <= 0:
             if kmc_thread.status == 0:
                 return 0
             else:
-                # print(kmc_thread.loginfo)
+                if kmc_thread.loginfo != last_info:
+                    print(kmc_thread.loginfo, flush=True)
                 return -1
         else:
             if kmc_thread.loginfo != last_info:
                 last_info = kmc_thread.loginfo
-                print(last_info)
+                print(last_info, flush=True)
 
 def GM_GO(param):
     tiplen = 0
@@ -103,7 +104,7 @@ def GM_GO(param):
                                            param.process_number, '', len(TI_dic), TI_dic))
     gm_thread.start()
     last_info = ''
-    print('Step2: k-mer union')
+    print('Step2: k-mer union', flush=True)
     while True:
         if gm_thread.status <= 0:
             try:
@@ -113,13 +114,13 @@ def GM_GO(param):
             except:
                 pass
             if gm_thread.status == 0:
-                print('\r', end='')
+                print('\r', end='', flush=True)
                 for i in range(tiplen):
-                    print(' ', end='')
-                print('\rTotal:100%%')
+                    print(' ', end='', flush=True)
+                print('\rTotal:100%%', flush=True)
                 return 0
             else:
-                print(gm_thread.loginfo)
+                print(gm_thread.loginfo, flush=True)
                 return -1
         else:
             if gm_thread.status == 2:
@@ -136,10 +137,10 @@ def GM_GO(param):
                                       (100 * temp_progress[k] / gm_thread.block_size[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        print('\r', end='')
+                        print('\r', end='', flush=True)
                         for i in range(tiplen):
-                            print(' ', end='')
-                        print('\r' + tipstr[:-1], end='')
+                            print(' ', end='', flush=True)
+                        print('\r' + tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
                 else:
                     if error_status == -1:
@@ -166,7 +167,7 @@ def GF_GO(param):
                                          param.corr_value, catagorical_mode))
     gf_thread.start()
     last_info = ''
-    print('Step3: k-mer filtering')
+    print('Step3: k-mer filtering', flush=True)
     while True:
         if gf_thread.status <= 0:
             try:
@@ -176,13 +177,13 @@ def GF_GO(param):
             except:
                 pass
             if gf_thread.status == 0:
-                print('\r', end='')
+                print('\r', end='', flush=True)
                 for i in range(tiplen):
-                    print(' ', end='')
+                    print(' ', end='', flush=True)
                 print('\rTotal:100%%')
                 return 0
             else:
-                print(gf_thread.loginfo)
+                print(gf_thread.loginfo, flush=True)
                 return -1
         else:
             if gf_thread.status == 2:
@@ -196,10 +197,10 @@ def GF_GO(param):
                                   (100 * temp_progress[k] / gf_thread.filesize[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        print('\r', end='')
+                        print('\r', end='', flush=True)
                         for i in range(tiplen):
-                            print(' ', end='')
-                        print('\r' + tipstr[:-1], end='')
+                            print(' ', end='', flush=True)
+                        print('\r' + tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
                 else:
                     if error_status == -1:
@@ -211,14 +212,14 @@ def GF_GO(param):
 def KA_GO(param):
     ka_thread = sequence_assembly.KA_Thread(('kmer_features', 'contig_result'))
     ka_thread.start()
-    print('Step4: k-mer assembly')
+    print('Step4: k-mer assembly', flush=True)
     while True:
         if ka_thread.status <= 0:
             if ka_thread.status == 0:
-                print('Done! Result files are stored in \"contig_result\".')
+                print('Done! Result files are stored in \"contig_result\".', flush=True)
                 return 0
             else:
-                print(ka_thread.loginfo)
+                print(ka_thread.loginfo, flush=True)
                 return -1
 
 if __name__ == "__main__":
