@@ -7,6 +7,7 @@ import sys, os, shutil, argparse, csv
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from collections import Counter
+import time
 import platform
 import multiprocessing
 from lib import kmc_read, kmer_matrix, kmer_features, sequence_assembly
@@ -114,10 +115,12 @@ def GM_GO(param):
             except:
                 pass
             if gm_thread.status == 0:
-                print('\r', end='', flush=True)
                 for i in range(tiplen):
+                    print('\b', end='', flush=True)
                     print(' ', end='', flush=True)
-                print('\rTotal:100%%', flush=True)
+                for i in range(tiplen):
+                    print('\b', end='', flush=True)
+                print('Total:100%%', flush=True)
                 return 0
             else:
                 print(gm_thread.loginfo, flush=True)
@@ -137,11 +140,14 @@ def GM_GO(param):
                                       (100 * temp_progress[k] / gm_thread.block_size[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        print('\r', end='', flush=True)
                         for i in range(tiplen):
+                            print('\b', end='', flush=True)
                             print(' ', end='', flush=True)
-                        print('\r' + tipstr[:-1], end='', flush=True)
+                        for i in range(tiplen):
+                            print('\b', end='', flush=True)
+                        print(tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
+                        time.sleep(0.5)
                 else:
                     if error_status == -1:
                         gm_thread.loginfo = 'Error! Missing some KMC result files.'
@@ -177,10 +183,12 @@ def GF_GO(param):
             except:
                 pass
             if gf_thread.status == 0:
-                print('\r', end='', flush=True)
                 for i in range(tiplen):
+                    print('\b', end='', flush=True)
                     print(' ', end='', flush=True)
-                print('\rTotal:100%%')
+                for i in range(tiplen):
+                    print('\b', end='', flush=True)
+                print('Total:100%%')
                 return 0
             else:
                 print(gf_thread.loginfo, flush=True)
@@ -197,11 +205,14 @@ def GF_GO(param):
                                   (100 * temp_progress[k] / gf_thread.filesize[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        print('\r', end='', flush=True)
                         for i in range(tiplen):
+                            print('\b', end='', flush=True)
                             print(' ', end='', flush=True)
-                        print('\r' + tipstr[:-1], end='', flush=True)
+                        for i in range(tiplen):
+                            print('\b', end='', flush=True)
+                        print(tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
+                        time.sleep(0.5)
                 else:
                     if error_status == -1:
                         gf_thread.loginfo = 'Missing matrix files.'
