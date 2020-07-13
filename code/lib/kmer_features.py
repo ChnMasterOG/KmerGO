@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v4.7
-# modification date: 2020/4/26
+# version: v5.0
+# modification date: 2020/7/13
 
 import os
 import time
@@ -63,6 +63,8 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
         label_Y = []
         # logical filtering
         for i in range(len(si)):
+            if not(headlist[i] in TI_dic):
+                continue
             nor_value = float(si[i])
             if TI_dic[headlist[i]] == A_Name:
                 group1.append(nor_value)
@@ -164,6 +166,8 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
         group2 = []
         # logical filtering
         for i in range(len(si)):
+            if not(headlist[i] in TI_dic):
+                continue
             kmer_fre.append(float(si[i]))
             if si[i] == '0':
                 group1.append(float(TI_dic[headlist[i]]))
