@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/5/29
+# modification date: 2020/7/16
 
 import sys, os, shutil, csv
 if hasattr(sys, 'frozen'):
@@ -389,7 +389,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 return
         # initialization folders
         try:
-            os.remove('temp')
+            shutil.rmtree('temp')
         except:
             pass
         self.GO_flag = True
@@ -500,7 +500,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 return
         # initialization folders
         try:
-            os.remove('temp')
+            shutil.rmtree('temp')
         except:
             pass
         self.GO_flag = True
@@ -610,7 +610,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             return
         # initialization folders
         try:
-            os.remove('temp')
+            shutil.rmtree('temp')
         except:
             pass
         self.GO_flag = True

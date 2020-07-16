@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/7/2
+# modification date: 2020/7/16
 
 import sys, os, shutil, argparse, csv
 if hasattr(sys, 'frozen'):
@@ -95,6 +95,10 @@ def KMC_GO(param):
                 print(last_info, flush=True)
 
 def GM_GO(param):
+    try:
+        shutil.rmtree('temp')
+    except:
+        pass
     tiplen = 0
     if param.mode == 0:
         gm_thread = kmer_matrix.GM_Thread(('kmer_countings', 'kmer_matrix',
@@ -160,6 +164,10 @@ def GM_GO(param):
                     gm_thread.status = -9
 
 def GF_GO(param):
+    try:
+        shutil.rmtree('temp')
+    except:
+        pass
     tiplen = 0
     if param.mode == 0:
         catagorical_mode = True
