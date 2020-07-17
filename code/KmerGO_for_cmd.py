@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/7/16
+# modification date: 2020/7/17
 
 import sys, os, shutil, argparse, csv
 if hasattr(sys, 'frozen'):
@@ -118,15 +118,14 @@ def GM_GO(param):
                     job.terminate()
             except:
                 pass
+            b_str = '\b' * tiplen
+            space_str = ' ' * tiplen
+            print(b_str + space_str + b_str, end='', flush=True)
             if gm_thread.status == 0:
-                for i in range(tiplen):
-                    print('\b', end='', flush=True)
-                    print(' ', end='', flush=True)
-                for i in range(tiplen):
-                    print('\b', end='', flush=True)
-                print('Total:100%%', flush=True)
+                print('Total:100%', flush=True)
                 return 0
             else:
+                print('Status = ' + str(gm_thread.status), flush=True)
                 print(gm_thread.loginfo, flush=True)
                 return -1
         else:
@@ -144,14 +143,12 @@ def GM_GO(param):
                                       (100 * temp_progress[k] / gm_thread.block_size[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        for i in range(tiplen):
-                            print('\b', end='', flush=True)
-                            print(' ', end='', flush=True)
-                        for i in range(tiplen):
-                            print('\b', end='', flush=True)
+                        b_str = '\b' * tiplen
+                        space_str = ' ' * tiplen
+                        print(b_str + space_str + b_str, end='', flush=True)
                         print(tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
-                        time.sleep(0.5)
+                    time.sleep(1)
                 else:
                     if error_status == -1:
                         gm_thread.loginfo = 'Error! Missing some KMC result files.'
@@ -190,15 +187,14 @@ def GF_GO(param):
                     job.terminate()
             except:
                 pass
+            b_str = '\b' * tiplen
+            space_str = ' ' * tiplen
+            print(b_str + space_str + b_str, end='', flush=True)
             if gf_thread.status == 0:
-                for i in range(tiplen):
-                    print('\b', end='', flush=True)
-                    print(' ', end='', flush=True)
-                for i in range(tiplen):
-                    print('\b', end='', flush=True)
-                print('Total:100%%')
+                print('Total:100%')
                 return 0
             else:
+                print('Status = ' + str(gf_thread.status), flush=True)
                 print(gf_thread.loginfo, flush=True)
                 return -1
         else:
@@ -213,14 +209,12 @@ def GF_GO(param):
                                   (100 * temp_progress[k] / gf_thread.filesize[k])
                     if last_info != tipstr:
                         last_info = tipstr
-                        for i in range(tiplen):
-                            print('\b', end='', flush=True)
-                            print(' ', end='', flush=True)
-                        for i in range(tiplen):
-                            print('\b', end='', flush=True)
+                        b_str = '\b' * tiplen
+                        space_str = ' ' * tiplen
+                        print(b_str + space_str + b_str, end='', flush=True)
                         print(tipstr[:-1], end='', flush=True)
                         tiplen = len(tipstr[:-1])
-                        time.sleep(0.5)
+                    time.sleep(1)
                 else:
                     if error_status == -1:
                         gf_thread.loginfo = 'Missing matrix files.'
@@ -261,12 +255,12 @@ if __name__ == "__main__":
     except:
         pass
     r = Check_csv_validity(param)
-    if r == 0:
-        r = KMC_GO(param)
+    #if r == 0:
+    #    r = KMC_GO(param)
     if r == 0:
         r = GM_GO(param)
     if r == 0:
         r = GF_GO(param)
-    if r == 0:
-        KA_GO(param)
+    #if r == 0:
+    #    KA_GO(param)
     
