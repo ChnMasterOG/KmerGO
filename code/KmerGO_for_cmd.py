@@ -255,12 +255,12 @@ if __name__ == "__main__":
     except:
         pass
     r = Check_csv_validity(param)
-    #if r == 0:
-    #    r = KMC_GO(param)
+    if r == 0:
+        r = KMC_GO(param)
     if r == 0:
         r = GM_GO(param)
     if r == 0:
         r = GF_GO(param)
-    #if r == 0:
-    #    KA_GO(param)
+    if r == 0:
+        KA_GO(param)
     
