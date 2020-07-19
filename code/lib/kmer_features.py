@@ -39,7 +39,7 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
     # variate initialization
     last_progress = 0
     headtext = fi.readline().decode('utf-8')
-    progress = headtext
+    progress = len(headtext)
     headtext = headtext.strip()
     headlist = headtext.split('\t')
     headlist = headlist[1:]
