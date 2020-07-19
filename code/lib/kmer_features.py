@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.0
-# modification date: 2020/7/13
+# modification date: 2020/7/18
 
 import os
 import time
@@ -25,28 +25,29 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
     bufsize = param[8]
 
     try:
-        fi = open(input_path, 'r')
+        fi = open(input_path, 'rb')
     except:
         open(os.path.join('temp', 'GF_error_status=-1'), 'w')
         return
     try:
-        fo1 = open(output_path1,'w', buffering=bufsize)
-        fo2 = open(output_path2, 'w', buffering=bufsize)
+        fo1 = open(output_path1,'wb', buffering=bufsize)
+        fo2 = open(output_path2, 'wb', buffering=bufsize)
     except:
         open(os.path.join('temp', 'GF_error_status=-2'), 'w')
         return
 
     # variate initialization
-    progress = 0
     last_progress = 0
-    headtext = fi.readline().strip()
+    headtext = fi.readline().decode('utf-8')
+    progress = headtext
+    headtext = headtext.strip()
     headlist = headtext.split('\t')
     headlist = headlist[1:]
-    strline = fi.readline()
+    strline = fi.readline().decode('utf-8')
 
     # write head text
-    fo1.write(headtext + '\tASS\tLabel\n')
-    fo2.write(headtext + '\tASS-l\tP\tASS-n\tLabel\n')
+    fo1.write((headtext + '\tASS\tLabel\n').encode('utf-8'))
+    fo2.write((headtext + '\tASS-l\tP\tASS-n\tLabel\n').encode('utf-8'))
 
     # start time
     last_time = time.time()
@@ -84,8 +85,8 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
             ASStrue = 1 - ASStrue
             label = B_Name
         if ASStrue >= ass_l:
-            fo1.write(strline[:-1])
-            fo1.write('\t' + str(ASStrue) + '\t' + label + '\n')
+            fo1.write(strline[:-1].encode('utf-8'))
+            fo1.write(('\t' + str(ASStrue) + '\t' + label + '\n').encode('utf-8'))
         else:
             # numerical filtering
             (Zvalue, Pvalue) = stats.ranksums(group1, group2)
@@ -104,15 +105,15 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
                         label = A_Name
                     else:
                         label = B_Name
-                    fo2.write(strline[:-1])
-                    fo2.write('\t' + str(ASStrue) + '\t' + str(Pvalue) + '\t' + str(cc) + '\t' + label + '\n')
+                    fo2.write(strline[:-1].encode('utf-8'))
+                    fo2.write(('\t' + str(ASStrue) + '\t' + str(Pvalue) + '\t' + str(cc) + '\t' + label + '\n').encode('utf-8'))
         progress += len(strline)     # update the progress
         if time.time() - last_time >= 1:    # output the progress file per second
             os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
                       os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(progress)))
             last_progress = progress
             last_time = time.time()
-        strline = fi.readline()
+        strline = fi.readline().decode('utf-8')
 
     # progress 100%
     os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
@@ -130,28 +131,29 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
     bufsize = param[3]
 
     try:
-        fi = open(input_path, 'r')
+        fi = open(input_path, 'rb')
     except:
         open(os.path.join('temp', 'GF_error_status=-1'), 'w')
         return
     try:
-        fo1 = open(output_path1,'w', buffering=bufsize)
-        fo2 = open(output_path2, 'w', buffering=bufsize)
+        fo1 = open(output_path1,'wb', buffering=bufsize)
+        fo2 = open(output_path2, 'wb', buffering=bufsize)
     except:
         open(os.path.join('temp', 'GF_error_status=-2'), 'w')
         return
 
     # variate initialization
-    progress = 0
     last_progress = 0
-    headtext = fi.readline().strip()
+    headtext = fi.readline().decode('utf-8')
+    progress = headtext
+    headtext = headtext.strip()
     headlist = headtext.split('\t')
     headlist = headlist[1:]
-    strline = fi.readline()
+    strline = fi.readline().decode('utf-8')
 
     # write head text
-    fo1.write(headtext + '\tP\n')
-    fo2.write(headtext + '\tP\tCorr\n')
+    fo1.write((headtext + '\tP\n').encode('utf-8'))
+    fo2.write((headtext + '\tP\tCorr\n').encode('utf-8'))
 
     # start time
     last_time = time.time()
@@ -175,14 +177,14 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
                 group2.append(float(TI_dic[headlist[i]]))
         (Zvalue, Pvalue) = stats.ranksums(group1, group2)
         if Pvalue < wicxon_p:
-            fo1.write(strline[:-1])
-            fo1.write('\t' + str(Pvalue) + '\n')
+            fo1.write(strline[:-1].encode('utf-8'))
+            fo1.write(('\t' + str(Pvalue) + '\n').encode('utf-8'))
         else:
             df = pd.DataFrame({'Kmer':kmer_fre, 'Trait':group1+group2})
             corr = df.corr('spearman')['Kmer'][1]
             if corr >= corr_value:
-                fo2.write(strline[:-1])
-                fo2.write('\t' + str(Pvalue) + '\t' + str(corr) + '\n')
+                fo2.write(strline[:-1].encode('utf-8'))
+                fo2.write(('\t' + str(Pvalue) + '\t' + str(corr) + '\n').encode('utf-8'))
 
         progress += len(strline)     # update the progress
         if time.time() - last_time >= 1:    # output the progress file per second
@@ -190,7 +192,7 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
                       os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(progress)))
             last_progress = progress
             last_time = time.time()
-        strline = fi.readline()
+        strline = fi.readline().decode('utf-8')
 
     # progress 100%
     os.rename(os.path.join('temp', 'GF_progress' + str(Nprocess) + ' ' + str(last_progress)),
