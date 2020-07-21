@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.6
-# modification date: 2020/5/22
+# modification date: 2020/7/21
 
 import os, shutil
 import time
@@ -137,16 +137,17 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     last_time = time.time()
 
     # write head text
-    fout.write(('\t'.join(head_list) + '\n').encode('utf-8'))
+    fout.write(('\t'.join(head_list)).encode('utf-8'))
     head_list = head_list[1:]
 
     try:
         # main loop
         while True:
             min_index = losertree.getmin()
-            min_index_and_1 = min_index + 1
-            if min_kmer == s[min_index][:Klen]:  # new k-mer is equal to last k-mer
-                wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
+            temp_s_min_index = s[min_index]
+            temp_min_kmer = temp_s_min_index[:Klen]
+            if min_kmer == temp_min_kmer:  # new k-mer is equal to last k-mer
+                wline[min_index + 1] = ('%.4f' % (int(temp_s_min_index[Klen_and_1:]) / fre_sum[min_index]))
                 if A_Name is not None:
                     if A_Name == '':
                         no_zero_counter1 += 1
@@ -156,12 +157,12 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                         else:
                             no_zero_counter2 += 1
             else:
-                if (no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB) and wline != ['']:
+                if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
                     fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
                 no_zero_counter1 = no_zero_counter2 = 0
-                wline = [s[min_index][:Klen]]
+                wline = [temp_min_kmer]
                 wline.extend(zero_matrix)
-                wline[min_index_and_1] = ('%.4f' % (int(s[min_index][Klen_and_1:]) / fre_sum[min_index]))
+                wline[min_index + 1] = ('%.4f' % (int(temp_s_min_index[Klen_and_1:]) / fre_sum[min_index]))
                 if A_Name is not None:
                     if A_Name == '':
                         no_zero_counter1 += 1
@@ -170,22 +171,23 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                             no_zero_counter1 += 1
                         else:
                             no_zero_counter2 += 1
-            min_kmer = s[min_index][:Klen]
+            min_kmer = temp_min_kmer
             s[min_index] = f[min_index].read(line_length).decode('utf-8')
+            temp_s_min_index = s[min_index]
             progress += line_length    # update progress
             if time.time() - last_time >= 5:    # output the progress file every 5 seconds
                 os.rename(os.path.join('temp', 'GM_progress' + str(Nprocess) + ' ' + str(last_progress)),
                           os.path.join('temp', 'GM_progress' + str(Nprocess) + ' ' + str(progress)))
                 last_progress = progress
                 last_time = time.time()
-            if s[min_index] == '' or s[min_index][:4] >= BEACON_prefix[next_Nprocess]:
+            if temp_s_min_index == '' or temp_s_min_index[:4] >= BEACON_prefix[next_Nprocess]:
                 s[min_index] = KofZ_t0
                 END_flag += 1
             if END_flag == Number_of_Group:
                 if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
                     fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
                 break
-            losertree.set_kmerlist(min_index, s[min_index])
+            losertree.set_kmerlist(min_index, temp_s_min_index)
             losertree.adjust(min_index)
     except:
         open(os.path.join('temp', 'GM_error_status=-10'), 'w')
@@ -265,9 +267,7 @@ class GM_Thread(threading.Thread):
             self.loginfo = 'Can not open some KMC result files.'
             return
 
-        self.KofZ = ''
-        for i in range(self.Klen):
-            self.KofZ += 'Z'
+        self.KofZ = 'Z' * self.Klen
 
         if len(self.beacon_path_list) != len(self.path_list):
             self.status = -15
