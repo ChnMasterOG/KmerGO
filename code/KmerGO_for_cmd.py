@@ -1,12 +1,14 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/7/17
+# modification date: 2020/7/22
 
 import sys, os, shutil, argparse, csv
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from collections import Counter
+import warnings
+warnings.filterwarnings('ignore')
 import time
 import platform
 import multiprocessing

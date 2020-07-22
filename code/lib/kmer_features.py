@@ -1,11 +1,12 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.0
-# modification date: 2020/7/18
+# modification date: 2020/7/22
 
 import os
 import time
 import threading
+import _thread
 from scipy import stats
 import numpy as np
 import pandas as pd
@@ -27,13 +28,15 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
     try:
         fi = open(input_path, 'rb')
     except:
-        open(os.path.join('temp', 'GF_error_status=-1'), 'w')
+        ferr = open(os.path.join('temp', 'GF_error_status=-1'), 'w')
+        ferr.close()
         return
     try:
         fo1 = open(output_path1,'wb', buffering=bufsize)
         fo2 = open(output_path2, 'wb', buffering=bufsize)
     except:
-        open(os.path.join('temp', 'GF_error_status=-2'), 'w')
+        ferr = open(os.path.join('temp', 'GF_error_status=-2'), 'w')
+        ferr.close()
         return
 
     # variate initialization
@@ -124,6 +127,10 @@ def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2,
     fo1.close()
     fo2.close()
 
+    # create ok-flag file
+    fok = open(os.path.join('temp', str(Nprocess) + '_ok'), 'w')
+    fok.close()
+
 def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
     TI_dic = param[0]
     wicxon_p = param[1]
@@ -133,13 +140,15 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
     try:
         fi = open(input_path, 'rb')
     except:
-        open(os.path.join('temp', 'GF_error_status=-1'), 'w')
+        ferr = open(os.path.join('temp', 'GF_error_status=-1'), 'w')
+        ferr.close()
         return
     try:
         fo1 = open(output_path1,'wb', buffering=bufsize)
         fo2 = open(output_path2, 'wb', buffering=bufsize)
     except:
-        open(os.path.join('temp', 'GF_error_status=-2'), 'w')
+        ferr = open(os.path.join('temp', 'GF_error_status=-2'), 'w')
+        ferr.close()
         return
 
     # variate initialization
@@ -203,6 +212,10 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
     fo1.close()
     fo2.close()
 
+    # create ok-flag file
+    fok = open(os.path.join('temp', str(Nprocess) + '_ok'), 'w')
+    fok.close()
+
 class GF_Thread(threading.Thread):
     def __init__(self, GF_Param):
         threading.Thread.__init__(self)
@@ -245,7 +258,8 @@ class GF_Thread(threading.Thread):
 
         for i in range(self.files_number):
             # the progress file
-            open(os.path.join('temp', 'GF_progress' + str(i) + ' 0'), 'w')
+            fprogress = open(os.path.join('temp', 'GF_progress' + str(i) + ' 0'), 'w')
+            fprogress.close()
 
         # the multiprocess runs
         catagory_param = [self.Number_of_A_Group, self.Number_of_B_Group, self.GroupA_Name, self.GroupB_Name,
@@ -266,6 +280,7 @@ class GF_Thread(threading.Thread):
                                   continuous_param))
                     for i in range(self.files_number)]
         self.status = 2
+        _thread.start_new_thread(self.detective_process_ok, ())
         for j in self.jobs:
             j.start()
         for j in self.jobs:
@@ -273,6 +288,23 @@ class GF_Thread(threading.Thread):
         
         if self.detective_error() == 0:
             self.status = 0
+
+        time.sleep(1)   # wait detective_process_ok to exit
+
+    def detective_process_ok(self):
+        while True:
+            okflag = True
+            for i in range(self.files_number):
+                if not os.path.exists(os.path.join('temp', str(i) + '_ok')):
+                    okflag = False
+                    break
+            if okflag == True or self.status != 2:
+                try:
+                    for j in self.jobs:
+                        j.terminate()
+                except:
+                    pass
+                return
 
     def detective_error(self):
         if os.path.exists(os.path.join('temp', 'GF_error_status=-1')):

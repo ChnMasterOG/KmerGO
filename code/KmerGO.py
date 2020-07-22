@@ -1,12 +1,14 @@
 # coding = utf-8
 # author: QiChen
 # version: v1.5.0
-# modification date: 2020/7/16
+# modification date: 2020/7/22
 
 import sys, os, shutil, csv
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from collections import Counter
+import warnings
+warnings.filterwarnings('ignore')
 import platform, ctypes
 import multiprocessing
 from PyQt5 import QtWidgets, QtCore, QtGui

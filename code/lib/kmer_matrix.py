@@ -1,11 +1,12 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.6
-# modification date: 2020/7/21
+# modification date: 2020/7/22
 
 import os, shutil
 import time
 import threading
+import _thread
 from multiprocessing import Process
 from lib import loser_tree
 
@@ -51,7 +52,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         try:
             f_beacon = open(beacon_path_list[i], 'r')
         except:
-            open(os.path.join('temp', 'GM_error_status=-1'), 'w')
+            ferr = open(os.path.join('temp', 'GM_error_status=-1'), 'w')
+            ferr.close()
             return
         text = f_beacon.readline().strip()
         while text != 'beacon:':
@@ -69,12 +71,14 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         except:
             for j in range(i):
                 f[i].close()
-            open(os.path.join('temp', 'GM_error_status=-1'), 'w')
+            ferr = open(os.path.join('temp', 'GM_error_status=-1'), 'w')
+            ferr.close()
             return
         try:
             f[i].seek(line_length * beacon_line[i], 0)
         except:
-            open(os.path.join('temp', 'GM_error_status=-3'), 'w')
+            ferr = open(os.path.join('temp', 'GM_error_status=-3'), 'w')
+            ferr.close()
             return
 
     #####################################
@@ -110,7 +114,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     try:
         fout = open(os.path.join(gm_result_path, 'son_matrix_' + str(Nprocess) + '.txt'), 'wb', buffering=bufsize)
     except:
-        open(os.path.join('temp', 'GM_error_status=-2'), 'w')
+        ferr = open(os.path.join('temp', 'GM_error_status=-2'), 'w')
+        ferrc.close()
         return
 
     # read each lines from files
@@ -190,7 +195,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
             losertree.set_kmerlist(min_index, temp_s_min_index)
             losertree.adjust(min_index)
     except:
-        open(os.path.join('temp', 'GM_error_status=-10'), 'w')
+        ferr = open(os.path.join('temp', 'GM_error_status=-10'), 'w')
+        ferrc.close()
         return
     
     # free the memory
@@ -204,6 +210,10 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     for i in range(len(path_list)):
         f[i].close()
     fout.close()
+
+    # create ok-flag file
+    fok = open(os.path.join('temp', str(Nprocess) + '_ok'), 'w')
+    fok.close()
 
 class GM_Thread(threading.Thread):
     def __init__(self, GM_Param):
@@ -280,7 +290,8 @@ class GM_Thread(threading.Thread):
         for i in range(self.process_number):
             self.beacon_block_list.append(round(i * 256 / self.process_number))
             # the progress file
-            open(os.path.join('temp', 'GM_progress' + str(self.beacon_block_list[i]) + ' 0'), 'w')
+            fprogress = open(os.path.join('temp', 'GM_progress' + str(self.beacon_block_list[i]) + ' 0'), 'w')
+            fprogress.close()
         self.beacon_block_list.append(256)
 
         # get each block size
@@ -339,6 +350,7 @@ class GM_Thread(threading.Thread):
                 for i in range(self.process_number)
         ]
         self.status = 2
+        _thread.start_new_thread(self.detective_process_ok, ())
         for j in self.jobs:
             j.start()
         for j in self.jobs:
@@ -357,6 +369,23 @@ class GM_Thread(threading.Thread):
 
         if self.detective_error() == 0:
             self.status = 0
+
+        time.sleep(1)   # wait detective_process_ok to exit
+        
+    def detective_process_ok(self):
+        while True:
+            okflag = True
+            for i in range(self.process_number):
+                if not os.path.exists(os.path.join('temp', str(self.beacon_block_list[i]) + '_ok')):
+                    okflag = False
+                    break
+            if okflag == True or self.status != 2:
+                try:
+                    for j in self.jobs:
+                        j.terminate()
+                except:
+                    pass
+                return
 
     def detective_error(self):
         if os.path.exists(os.path.join('temp', 'GM_error_status=-1')):
