@@ -17,15 +17,14 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     beacon_path_list = param[1]
     path_list = param[2]
     Klen = param[3]
-    fre_max_len = param[4]
-    Number_of_Group = param[5]
-    head_list = param[6]
-    A_Name = param[7]
-    A_Number = param[8]
-    TI_dic = param[9]
-    KofZ = param[10]
-    fre_sum = param[11]
-    bufsize = param[12]
+    Number_of_Group = param[4]
+    head_list = param[5]
+    A_Name = param[6]
+    A_Number = param[7]
+    TI_dic = param[8]
+    KofZ = param[9]
+    fre_sum = param[10]
+    bufsize = param[11]
 
     # Memory exchange efficiency
     if A_Name is not None:
@@ -38,7 +37,6 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         no_zero_counter_thrA = 0
         no_zero_counter_thrB = 0
     next_Nprocess = Nprocess + NEXTprocess
-    line_length = Klen + fre_max_len + 2
     Klen_and_1 = Klen + 1
     KofZ_t0 = KofZ + '\t0'
     zero_matrix = ['0' for i in range(Number_of_Group)]
@@ -46,7 +44,7 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
     ##########################################
     # STEP1: locate to the interruputed_kmer #
     ##########################################
-    beacon_line = [0 for i in range(len(beacon_path_list))]
+    beacon_point = [0 for i in range(len(beacon_path_list))]
     beacon_sum = [0 for i in range(len(beacon_path_list))]
     for i in range(len(beacon_path_list)):
         try:
@@ -59,7 +57,7 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         while text != 'beacon:':
             text = f_beacon.readline().strip()
         for j in range(Nprocess + 1):
-            beacon_line[i] = int(f_beacon.readline().strip())
+            beacon_point[i] = int(f_beacon.readline().strip())
         while text != 'sum:':
             text = f_beacon.readline().strip()
         beacon_sum[i] = int(f_beacon.readline().strip())
@@ -75,7 +73,7 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
             ferr.close()
             return
         try:
-            f[i].seek(line_length * beacon_line[i], 0)
+            f[i].seek(beacon_point[i], 0)
         except:
             ferr = open(os.path.join('temp', 'GM_error_status=-3'), 'w')
             ferr.close()
@@ -119,13 +117,15 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         return
 
     # read each lines from files
-    s = [f[i].read(line_length).decode('utf-8') for i in range(Number_of_Group)]
+    s = [f[i].readline().decode('utf-8') for i in range(Number_of_Group)]
 
     # preliminary judgment
     for i in range(len(s)):
         if s[i] == '' or s[i][:4] >= BEACON_prefix[next_Nprocess]:
             s[i] = KofZ_t0
             END_flag += 1
+        else:
+            progress += len(s[i])    # update progress
     if END_flag == Number_of_Group:
         # close files
         for i in range(len(path_list)):
@@ -163,7 +163,7 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                             no_zero_counter2 += 1
             else:
                 if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
-                    fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
+                    fout.write(('\n' + '\t'.join(wline)).encode('utf-8'))  # write last wline
                 no_zero_counter1 = no_zero_counter2 = 0
                 wline = [temp_min_kmer]
                 wline.extend(zero_matrix)
@@ -177,9 +177,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                         else:
                             no_zero_counter2 += 1
             min_kmer = temp_min_kmer
-            s[min_index] = f[min_index].read(line_length).decode('utf-8')
+            s[min_index] = f[min_index].readline().decode('utf-8')
             temp_s_min_index = s[min_index]
-            progress += line_length    # update progress
             if time.time() - last_time >= 5:    # output the progress file every 5 seconds
                 os.rename(os.path.join('temp', 'GM_progress' + str(Nprocess) + ' ' + str(last_progress)),
                           os.path.join('temp', 'GM_progress' + str(Nprocess) + ' ' + str(progress)))
@@ -188,15 +187,18 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
             if temp_s_min_index == '' or temp_s_min_index[:4] >= BEACON_prefix[next_Nprocess]:
                 s[min_index] = KofZ_t0
                 END_flag += 1
+            else:
+                progress += len(temp_s_min_index)    # update progress
             if END_flag == Number_of_Group:
                 if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
-                    fout.write(('\t'.join(wline) + '\n').encode('utf-8'))  # write last wline
+                    fout.write(('\n' + '\t'.join(wline)).encode('utf-8'))  # write last wline
+                fout.write(b'\n')  # write END line
                 break
-            losertree.set_kmerlist(min_index, temp_s_min_index)
+            losertree.set_kmerlist(min_index, s[min_index])
             losertree.adjust(min_index)
     except:
         ferr = open(os.path.join('temp', 'GM_error_status=-10'), 'w')
-        ferrc.close()
+        ferr.close()
         return
     
     # free the memory
@@ -229,7 +231,6 @@ class GM_Thread(threading.Thread):
         self.A_Name = GM_Param[3]
         self.A_Number = GM_Param[4]
         self.TI_dic = GM_Param[5]
-        self.fre_max_len = -1
         self.KofZ = ''
         self.Klen = -1
 
@@ -253,7 +254,7 @@ class GM_Thread(threading.Thread):
                     self.head_list.append(i[:-11])
                     self.path_list.append(os.path.join(self.kmc_result_path, i[:-11] + '.txt'))
                     self.filesize.append(os.path.getsize(os.path.join(self.kmc_result_path, i[:-11] + '.txt')))
-                    # read kmc files to set Klen and cslen
+                    # read kmc files to set Klen
                     ftmp = open(os.path.join(self.kmc_result_path, i[:-11] + '.txt'), 'r')
                     firstline = ftmp.readline().strip()
                     firstline = firstline.split('\t')
@@ -264,13 +265,6 @@ class GM_Thread(threading.Thread):
                         return
                     else:
                         self.Klen = len(firstline[0])
-                    if self.fre_max_len != -1 and self.fre_max_len != len(firstline[1]):
-                        ftmp.close()
-                        self.status = -81
-                        self.loginfo = 'Cs value error.'
-                        return
-                    else:
-                        self.fre_max_len = len(firstline[1])
                     ftmp.close()
         except:
             self.status = -3
@@ -296,7 +290,7 @@ class GM_Thread(threading.Thread):
 
         # get each block size
         fre_sum = []
-        beacon_line = [[0 for j in range(self.process_number + 1)] for i in range(len(self.path_list))]
+        beacon_point = [[0 for j in range(self.process_number + 1)] for i in range(len(self.path_list))]
         block_size = [[0 for j in range(len(self.path_list))] for i in range(self.process_number)]
         for i in range(len(self.path_list)):
             try:
@@ -313,15 +307,15 @@ class GM_Thread(threading.Thread):
                     for k in range(self.beacon_block_list[j] - self.beacon_block_list[j - 1] - 1):
                         f_beacon.readline().strip()
                 text = f_beacon.readline().strip()
-                beacon_line[i][j] = int(text)
+                beacon_point[i][j] = int(text)
             try:
-                beacon_line[i][self.process_number] = int(self.filesize[i] / (self.Klen + self.fre_max_len + 2))
+                beacon_point[i][self.process_number] = int(self.filesize[i])
             except:
                 self.status = -99
                 self.loginfo = 'K vaule or Cs value is wrong.'
                 return
             for j in range(self.process_number):
-                block_size[j][i] = (beacon_line[i][j + 1] - beacon_line[i][j]) * (self.Klen + self.fre_max_len + 2)
+                block_size[j][i] = beacon_point[i][j + 1] - beacon_point[i][j]
             f_beacon.seek(0, 0)
             text = f_beacon.readline().strip()
             while text != 'sum:':
@@ -341,7 +335,7 @@ class GM_Thread(threading.Thread):
                 fre_sum[i] = fre_sum[i] * (10 ** -tmp)
 
         # the multiprocess runs
-        process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen, self.fre_max_len,
+        process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen,
                          len(self.path_list), self.head_list, self.A_Name, self.A_Number, self.TI_dic, self.KofZ,
                          fre_sum, 4096]
         self.jobs = [Process(target = get_Son_Matrix,
