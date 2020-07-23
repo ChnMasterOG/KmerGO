@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.0
-# modification date: 2020/7/22
+# modification date: 2020/7/23
 
 import os
 import time
@@ -154,7 +154,7 @@ def Continuous_feature_filtering(Nprocess, input_path, output_path1, output_path
     # variate initialization
     last_progress = 0
     headtext = fi.readline().decode('utf-8')
-    progress = headtext
+    progress = len(headtext)
     headtext = headtext.strip()
     headlist = headtext.split('\t')
     headlist = headlist[1:]
