@@ -32,7 +32,7 @@ KmerGO has been tested on Ubuntu 16, Debian 9, CentOS 7, Fedora 30 and Deepin 15
 
 - Download the Linux GUI version of KmerGO: [download link](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.zip).
 
-- Download the Linux command version of KmerGO: [download link](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64.cmd.zip).
+- Download the Linux command version of KmerGO: [download link](https://github.com/ChnMasterOG/KmerGO/releases/download/v1.5.0/KmerGO_for_linux_x64_cmd.zip).
 
 Decompress the file and enter the software path.
 
