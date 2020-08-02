@@ -34,8 +34,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         else:
             no_zero_counter_thrB = (1 - Sparse_filter_threshold) * (Number_of_Group - A_Number)
     else:
-        no_zero_counter_thrA = 0
-        no_zero_counter_thrB = 0
+        no_zero_counter_thrA = 1
+        no_zero_counter_thrB = 1
     next_Nprocess = Nprocess + NEXTprocess
     Klen_and_1 = Klen + 1
     KofZ_t0 = KofZ + '\t0'
