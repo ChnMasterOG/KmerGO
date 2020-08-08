@@ -161,6 +161,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                             no_zero_counter1 += 1
                         else:
                             no_zero_counter2 += 1
+                else:
+                    no_zero_counter1 += 1
             else:
                 if no_zero_counter1 >= no_zero_counter_thrA or no_zero_counter2 >= no_zero_counter_thrB:
                     fout.write(('\n' + '\t'.join(wline)).encode('utf-8'))  # write last wline
@@ -176,6 +178,8 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
                             no_zero_counter1 += 1
                         else:
                             no_zero_counter2 += 1
+                else:
+                    no_zero_counter1 += 1
             min_kmer = temp_min_kmer
             s[min_index] = f[min_index].readline().decode('utf-8')
             temp_s_min_index = s[min_index]
