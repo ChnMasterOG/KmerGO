@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
 # version: v5.6
-# modification date: 2020/7/23
+# modification date: 2020/8/14
 
 import os, shutil
 import time
@@ -116,6 +116,10 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
         ferrc.close()
         return
 
+    # write head text
+    fout.write(('\t'.join(head_list)).encode('utf-8'))
+    head_list = head_list[1:]
+
     # read each lines from files
     s = [f[i].readline().decode('utf-8') for i in range(Number_of_Group)]
 
@@ -140,10 +144,6 @@ def get_Son_Matrix(Nprocess, NEXTprocess, param):
 
     # start time
     last_time = time.time()
-
-    # write head text
-    fout.write(('\t'.join(head_list)).encode('utf-8'))
-    head_list = head_list[1:]
 
     try:
         # main loop
