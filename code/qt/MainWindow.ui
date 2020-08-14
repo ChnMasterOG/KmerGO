@@ -748,7 +748,7 @@
       <string>Select</string>
      </property>
     </widget>
-    <widget class="QRadioButton" name="Catagorical_RadioButton">
+    <widget class="QRadioButton" name="Categorical_RadioButton">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -765,7 +765,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Catagorical Trait</string>
+      <string>Categorical Trait</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -997,7 +997,7 @@
   <tabstop>GM_Result_Path_Button</tabstop>
   <tabstop>Trait_Info_Path_Edit</tabstop>
   <tabstop>Trait_Info_Path_Button</tabstop>
-  <tabstop>Catagorical_RadioButton</tabstop>
+  <tabstop>Categorical_RadioButton</tabstop>
   <tabstop>Continuous_RadioButton</tabstop>
   <tabstop>ASS_l_Value_Edit</tabstop>
   <tabstop>P_Value_Edit</tabstop>

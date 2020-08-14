@@ -51,7 +51,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_l_Value_Edit.textChanged.connect(self.ASS_l_Value_Edit_TextChange)
         self.new_window.P_Value_Edit.textChanged.connect(self.P_Value_Edit_TextChange)
         self.new_window.ASS_n_Value_Edit.textChanged.connect(self.ASS_n_Value_Edit_TextChange)
-        self.new_window.Catagorical_RadioButton.clicked.connect(self.Catagorical_RadioButton_Clicked)
+        self.new_window.Categorical_RadioButton.clicked.connect(self.Categorical_RadioButton_Clicked)
         self.new_window.Continuous_RadioButton.clicked.connect(self.Continuous_RadioButton_Clicked)
         self.new_window.K_Value_Edit.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
         self.new_window.K_Value_Label.setToolTip('K-mer length\n(K from 14 to 256; default: 40)')
@@ -128,7 +128,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.Process_Number_Edit.setText(str(self.projectfile.Process_value))
         self.new_window.GM_Result_Path_Edit.setText(self.projectfile.GM_path)
         self.new_window.P_Value_Edit.setText(str(self.projectfile.P_value))
-        if self.new_window.Catagorical_RadioButton.isChecked() is True:
+        if self.new_window.Categorical_RadioButton.isChecked() is True:
             self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
         else:
             self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.Corr_value))
@@ -307,7 +307,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.P_Value_Edit.setText(str(self.projectfile.P_value))
 
     def ASS_n_Value_Edit_TextChange(self):
-        if self.new_window.Catagorical_RadioButton.isChecked() is True:
+        if self.new_window.Categorical_RadioButton.isChecked() is True:
             try: self.projectfile.ASS_n_value = float(self.new_window.ASS_n_Value_Edit.text())
             except: pass
             self.new_window.ASS_n_Value_Edit.setText(str(self.projectfile.ASS_n_value))
@@ -346,7 +346,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.KMC_GO_Button.setEnabled(True)
             elif self.kmc_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
-                self.new_window.Catagorical_RadioButton.setEnabled(True)
+                self.new_window.Categorical_RadioButton.setEnabled(True)
                 self.new_window.Continuous_RadioButton.setEnabled(True)
                 self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.K_Value_Edit.setEnabled(True)
@@ -401,11 +401,11 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.GM_GO_Button.setEnabled(False)
         self.new_window.OneClickRunningButton.setEnabled(False)
         self.new_window.StepByStepRunningButton.setEnabled(False)
-        if self.static_mode == 0 and self.new_window.Catagorical_RadioButton.isChecked() is True:
+        if self.static_mode == 0 and self.new_window.Categorical_RadioButton.isChecked() is True:
             self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
                                                     self.projectfile.Process_value, self.projectfile.GroupA_Name,
                                                     self.projectfile.GroupA_Number, self.projectfile.TI_dic))
-        elif self.static_mode == 0 and self.new_window.Catagorical_RadioButton.isChecked() is False:
+        elif self.static_mode == 0 and self.new_window.Categorical_RadioButton.isChecked() is False:
             self.gm_thread = kmer_matrix.GM_Thread((self.projectfile.KMC_path, self.projectfile.GM_path,
                                                     self.projectfile.Process_value, '',
                                                     len(self.projectfile.TI_dic), self.projectfile.TI_dic))
@@ -426,7 +426,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.GM_GO_Button.setEnabled(True)
             elif self.gm_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
-                self.new_window.Catagorical_RadioButton.setEnabled(True)
+                self.new_window.Categorical_RadioButton.setEnabled(True)
                 self.new_window.Continuous_RadioButton.setEnabled(True)
                 self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.Process_Number_Edit.setEnabled(True)
@@ -514,7 +514,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_n_Value_Edit.setEnabled(False)
         self.new_window.OneClickRunningButton.setEnabled(False)
         self.new_window.StepByStepRunningButton.setEnabled(False)
-        self.new_window.Catagorical_RadioButton.setEnabled(False)
+        self.new_window.Categorical_RadioButton.setEnabled(False)
         self.new_window.Continuous_RadioButton.setEnabled(False)
         self.new_window.Trait_Info_Path_Button.setEnabled(False)
         self.gf_thread = kmer_features.GF_Thread((self.projectfile.GM_path, self.projectfile.GF_path,
@@ -523,7 +523,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                                                   self.projectfile.GroupB_Number, self.projectfile.GroupA_Name,
                                                   self.projectfile.GroupB_Name, self.projectfile.TI_dic,
                                                   self.projectfile.Corr_value,
-                                                  self.new_window.Catagorical_RadioButton.isChecked()))
+                                                  self.new_window.Categorical_RadioButton.isChecked()))
         self.gf_thread.start()
         self.gf_timer = QtCore.QTimer(self)
         self.gf_timer.timeout.connect(self.GF_Timer_Show)
@@ -538,7 +538,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 self.new_window.GF_GO_Button.setEnabled(True)
             elif self.gf_thread.status < 0:
                 self.new_window.KA_GO_Button.setEnabled(True)
-                self.new_window.Catagorical_RadioButton.setEnabled(True)
+                self.new_window.Categorical_RadioButton.setEnabled(True)
                 self.new_window.Continuous_RadioButton.setEnabled(True)
                 self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.ASS_l_Value_Edit.setEnabled(True)
@@ -547,7 +547,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.new_window.OneClickRunningButton.setEnabled(True)
             self.new_window.StepByStepRunningButton.setEnabled(True)
             if self.mode == 1:
-                self.new_window.Catagorical_RadioButton.setEnabled(True)
+                self.new_window.Categorical_RadioButton.setEnabled(True)
                 self.new_window.Continuous_RadioButton.setEnabled(True)
                 self.new_window.Trait_Info_Path_Button.setEnabled(True)
             try:
@@ -605,7 +605,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 QtWidgets.QMessageBox.critical(self, 'Error', 'CSV format error', QtWidgets.QMessageBox.Yes)
                 return
             self.new_window.KA_GO_Button.setEnabled(False)
-            self.new_window.Catagorical_RadioButton.setEnabled(False)
+            self.new_window.Categorical_RadioButton.setEnabled(False)
             self.new_window.Continuous_RadioButton.setEnabled(False)
             self.new_window.Trait_Info_Path_Button.setEnabled(False)
             self.KMC_GO_Button_Clicked()
@@ -636,7 +636,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.new_window.KA_GO_Button.setEnabled(True)
             if self.mode == 1:
                 self.new_window.GF_Result_Path_Button.setEnabled(True)
-            self.new_window.Catagorical_RadioButton.setEnabled(True)
+            self.new_window.Categorical_RadioButton.setEnabled(True)
             self.new_window.Continuous_RadioButton.setEnabled(True)
             self.new_window.Trait_Info_Path_Button.setEnabled(True)
             self.new_window.OneClickRunningButton.setEnabled(True)
@@ -662,7 +662,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.new_window.KA_Project_Status_Label.setText('Status: ' + self.ka_thread.loginfo)
             self.new_window.KA_Project_Status_Label.setStyleSheet('color:blue')
 
-    def Catagorical_RadioButton_Clicked(self):
+    def Categorical_RadioButton_Clicked(self):
         self.new_window.ASS_l_Value_Label.setVisible(True)
         self.new_window.ASS_l_Value_Edit.setVisible(True)
         self.new_window.ASS_n_Value_Label.setText('<html><head/><body><p align="center">ASS-n =</p></body></html>')
@@ -683,7 +683,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.new_window.ASS_n_Value_Label.setToolTip('numeric features coefficient of association ρ threshold value\n(default: 0.8)')
 
     def Check_csv_validity(self):
-        if self.new_window.Catagorical_RadioButton.isChecked() is True:
+        if self.new_window.Categorical_RadioButton.isChecked() is True:
             counter_dic = Counter(self.projectfile.TI_dic.values())
             if len(counter_dic) != 2:
                 return False
