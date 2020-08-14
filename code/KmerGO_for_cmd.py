@@ -22,7 +22,7 @@ def get_parameters():
     parser = argparse.ArgumentParser(prog='KmerGO', usage=usage_info)
     parser.add_argument('-i', dest='sample_path', required=True, type=str, help='sample files path')
     parser.add_argument('-t', dest='trait_information_path', required=True, type=str, help='a csv file path of trait information')
-    parser.add_argument('-m', '--mode', dest='mode', type=int, default=0, help='mode: 0-catagorical, 1-continuous (default: 0)')
+    parser.add_argument('-m', '--mode', dest='mode', type=int, default=0, help='mode: 0-categorical, 1-continuous (default: 0)')
     parser.add_argument('-k', '--kmerlength', dest='k_value', type=int, default=40, help='k-mer length (k from 14 to 256; default: 40)')
     parser.add_argument('-ci', dest='ci_value', type=int, default=2, help='minimal K-mer occurring times (default: 2)')
     parser.add_argument('-cs', dest='cs_value', type=int, default=65535, help='maximal K-mer occurring times (default: 65535)')
@@ -169,15 +169,15 @@ def GF_GO(param):
         pass
     tiplen = 0
     if param.mode == 0:
-        catagorical_mode = True
+        categorical_mode = True
     else:
-        catagorical_mode = False
+        categorical_mode = False
     gf_thread = kmer_features.GF_Thread(('kmer_matrix', 'kmer_features',
                                          param.ass_l, param.p_value,
                                          param.ass_n, GroupA_Number,
                                          GroupB_Number, GroupA_Name,
                                          GroupB_Name, TI_dic,
-                                         param.corr_value, catagorical_mode))
+                                         param.corr_value, categorical_mode))
     gf_thread.start()
     last_info = ''
     print('Step3: k-mer filtering', flush=True)

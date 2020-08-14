@@ -71,9 +71,9 @@ As shown in the following Gif, You should first select a workpath folder of work
 
 After that, you can set the parameters and press the button "One-Click Start" to start the running. KmerGO can execute all steps automatically if there are no errors.
 
-**a) catagorical trait type**
+**a) categorical trait type**
 
-![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_catagorical_mode.gif)
+![alt tag](https://raw.githubusercontent.com/ChnMasterOG/KmerGO/master/resource/oneclick_categorical_mode.gif)
 
 **b) continuous trait type**
 
@@ -117,7 +117,7 @@ If you want obtain the K-mer filtering features using the K-mer union matrixes i
 
 (1) Select "KMC matrix files path" of input matrixes path.
 
-(2) Select the trait type (catagorical or continuous).
+(2) Select the trait type (categorical or continuous).
 
 (3) Select "A CSV file of trait information".
 
@@ -150,7 +150,7 @@ short option | long option | required | description
 -h           | --help      | No       | show the help message and exit 
 -i           | /           | Yes      | sample files path 
 -t           | /           | Yes      | a csv file path of trait information 
--m           | --mode      | No       | mode: 0-catagorical, 1-continuous (default: 0) 
+-m           | --mode      | No       | mode: 0-categorical, 1-continuous (default: 0) 
 -k           | --kmerlength| No       | k-mer length (k from 14 to 256; default: 40) 
 -ci          | /           | No       | minimal K-mer occurring times (default: 2) 
 -cs          | /           | No       | maximal K-mer occurring times (default: 65535) 
@@ -160,11 +160,11 @@ short option | long option | required | description
 -assn        | /           | No       | when mode = 0, numeric features logistic regression ASS value (default: 0.8) 
 -corr        | /           | No       | when mode = 1, numeric features coefficient of association ρ threshold value (default: 0.8) 
 
-Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/catagorical\ trait\ information.csv`*
+Example: *`./KmerGO -k 25 -ci 1 -n 2 -i ./test_data/samples/ -t ./test_data/categorical\ trait\ information.csv`*
 
 ## Trait information file format
 
-**Catagorical Trait**
+**Categorical Trait**
 
 Example1:
 

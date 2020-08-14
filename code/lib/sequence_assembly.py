@@ -63,7 +63,7 @@ class KA_Thread(threading.Thread):
                 fi = open(os.path.join(gf_path, fpath), 'r')
             except:
                 return -2
-            if fpath[:8] == 'catagory':  # Catagory data
+            if fpath[:11] == 'categorical':  # Categorical data
                 if counter != 1 and filtering_mode == 1:
                     return -5
                 filtering_mode = 0

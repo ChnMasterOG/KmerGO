@@ -14,7 +14,7 @@ from multiprocessing import Process
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
-def Catagory_feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
+def Categorical_feature_filtering(Nprocess, input_path, output_path1, output_path2, param):
     Number_of_A_Group = param[0]
     Number_of_B_Group = param[1]
     A_Name = param[2]
@@ -232,7 +232,7 @@ class GF_Thread(threading.Thread):
         self.GroupB_Name = GF_Param[8]
         self.TI_dic = GF_Param[9]
         self.corr_value = GF_Param[10]
-        self.Catagory_Mode = GF_Param[11]
+        self.Categorical_Mode = GF_Param[11]
         self.filesize = []
         self.file_path = []
         self.files_number = 0
@@ -262,15 +262,15 @@ class GF_Thread(threading.Thread):
             fprogress.close()
 
         # the multiprocess runs
-        catagory_param = [self.Number_of_A_Group, self.Number_of_B_Group, self.GroupA_Name, self.GroupB_Name,
+        categorical_param = [self.Number_of_A_Group, self.Number_of_B_Group, self.GroupA_Name, self.GroupB_Name,
                           self.TI_dic, self.ass_l_value, self.p_value, self.ass_n_value, 4096]
         continuous_param = [self.TI_dic, self.p_value, self.corr_value, 4096]
-        if self.Catagory_Mode == True:
-            self.jobs = [Process(target=Catagory_feature_filtering,
+        if self.Categorical_Mode == True:
+            self.jobs = [Process(target=Categorical_feature_filtering,
                             args=(i, self.file_path[i],
-                                  os.path.join(self.gf_result_path, 'catagory_l_' + str(i) + '.txt'),
-                                  os.path.join(self.gf_result_path, 'catagory_n_' + str(i) + '.txt'),
-                                  catagory_param))
+                                  os.path.join(self.gf_result_path, 'categorical_l_' + str(i) + '.txt'),
+                                  os.path.join(self.gf_result_path, 'categorical_n_' + str(i) + '.txt'),
+                                  categorical_param))
                     for i in range(self.files_number)]
         else:
             self.jobs = [Process(target=Continuous_feature_filtering,
