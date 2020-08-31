@@ -12,6 +12,8 @@
 
 In our experiment, through multi-processes parallel computing, KmerGO is able to capture all the group-specific k-mers (k up to 40bps) for 1.07 TB data in fasta format on a regular standalone server(Intel(R) Xeon(R) E5-2620 v4 @ 2.10GHz) in 21.5 hours, including 4 hours Kmer counting with KMC[http://sun.aei.polsl.pl/REFRESH/kmc] and 17.5 hours(16 processes number) group-specific kmer identification, and return the assembled group-specific sequences.
 
+Please cite: Wang Y, Chen Q, Deng C, Zheng Y and Sun F (2020) KmerGO: A Tool to Identify Group-Specific Sequences With k-mers. Front. Microbiol. 11:2067. doi: 10.3389/fmicb.2020.02067
+
 ## Running on two operation systems
 
 KmerGO can be run directly on Windows and Linux operating systems, without extra enviromental settings or configurations.
@@ -216,4 +218,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2020-05-20
+Last update: 2020-08-31
