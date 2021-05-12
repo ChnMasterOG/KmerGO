@@ -208,6 +208,10 @@ SRR3,5.22
 
 **Templates can be also found in the folder "test_data".**
 
+## Normalization Coefficients
+
+KmerGO will normalize the K-mer counting to the level of 10^-4 and output the normalization coefficients of each sample at the "Module 2".
+
 ## Contacts and bug reports
 
 Please send bug reports, comments, or questions to
@@ -218,4 +222,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2020-08-31
+Last update: 2021-05-12

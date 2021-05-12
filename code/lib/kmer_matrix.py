@@ -338,8 +338,8 @@ class GM_Thread(threading.Thread):
             elif tmp < 0:
                 fre_sum[i] = fre_sum[i] * (10 ** -tmp)
 
-        # output the normalization coefficient
-        f_NC = open('normalization_coefficient.txt', 'w')
+        # output the normalization coefficients
+        f_NC = open('normalization_coefficients.txt', 'w')
         for i in self.head_list:
             if i == 'k-mer':
                 f_NC.write('sample')
