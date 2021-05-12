@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v5.6
-# modification date: 2020/8/14
+# version: v5.7
+# modification date: 2021/5/12
 
 import os, shutil
 import time
@@ -337,6 +337,19 @@ class GM_Thread(threading.Thread):
                 fre_sum[i] = fre_sum[i] / (10 ** tmp)
             elif tmp < 0:
                 fre_sum[i] = fre_sum[i] * (10 ** -tmp)
+
+        # output the normalization coefficient
+        f_NC = open('normalization_coefficient.txt', 'w')
+        for i in self.head_list:
+            if i == 'k-mer':
+                f_NC.write('sample')
+            else:
+                f_NC.write('\t' + i)
+        f_NC.write('\nnormalization coefficient')
+        for i in fre_sum:
+            f_NC.write('\t' + str(i))
+        f_NC.write('\n')
+        f_NC.close()
 
         # the multiprocess runs
         process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen,
