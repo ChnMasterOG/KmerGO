@@ -1,9 +1,9 @@
 # coding = utf-8
 # author: QiChen
 # version: v3.0
-# modification date: 2020/4/21
+# modification date: 2020/10/5
 
-import os, sys
+import os, sys, shutil
 import subprocess
 import threading
 import platform
@@ -82,12 +82,16 @@ class KMC_Thread(threading.Thread):
                                 stderr=subprocess.PIPE)
             if r != 0:
                 return 0 / 0
-            cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir, flist[i][0])\
-                  + ' sort ' + os.path.join(work_dir, flist[i][0] + '_sort')
-            r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-            if r != 0:
-                return 0 / 0
+            if k_value >= 14:
+                cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir, flist[i][0])\
+                      + ' sort ' + os.path.join(work_dir, flist[i][0] + '_sort')
+                r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+                if r != 0:
+                    return 0 / 0
+            else:
+                shutil.copyfile(os.path.join(work_dir, flist[i][0] + '.kmc_pre'), os.path.join(work_dir, flist[i][0] + '_sort.kmc_pre'))
+                shutil.copyfile(os.path.join(work_dir, flist[i][0] + '.kmc_suf'), os.path.join(work_dir, flist[i][0] + '_sort.kmc_suf'))
             cmd = kmc_dump_command + ' -cs' + str(cs_value) + ' '\
                   + os.path.join(work_dir, flist[i][0] + '_sort') + ' '\
                   + os.path.join(output_dir, flist[i][0] + '.txt') + ' '\

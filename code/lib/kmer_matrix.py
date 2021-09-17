@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v5.7
-# modification date: 2021/5/12
+# version: v5.6
+# modification date: 2020/10/5
 
 import os, shutil
 import time
@@ -11,6 +11,21 @@ from multiprocessing import Process
 from lib import loser_tree
 
 Sparse_filter_threshold = 0.8
+
+def distribute_kmer_nonuniformly(step, num, maxnum, out):
+    if step == 4:
+        return out
+    if num < 4 * maxnum / 10:
+        return distribute_kmer_nonuniformly(step + 1, num, 4 * maxnum / 10, out)
+    elif num < 7 * maxnum / 10:
+        out += 1 * (4 ** (3-step))
+        return distribute_kmer_nonuniformly(step + 1, num - 4 * maxnum / 10, 3 * maxnum / 10, out)
+    elif num < 9 * maxnum / 10:
+        out += 2 * (4 ** (3-step))
+        return distribute_kmer_nonuniformly(step + 1, num - 7 * maxnum / 10, 2 * maxnum / 10, out)
+    else:
+        out += 3 * (4 ** (3-step))
+        return distribute_kmer_nonuniformly(step + 1, num - 9 * maxnum / 10, maxnum / 10, out)
 
 def get_Son_Matrix(Nprocess, NEXTprocess, param):
     gm_result_path = param[0]
@@ -262,13 +277,21 @@ class GM_Thread(threading.Thread):
                     ftmp = open(os.path.join(self.kmc_result_path, i[:-11] + '.txt'), 'r')
                     firstline = ftmp.readline().strip()
                     firstline = firstline.split('\t')
-                    if self.Klen != -1 and self.Klen != len(firstline[0]):
-                        ftmp.close()
-                        self.status = -80
-                        self.loginfo = 'K value error.'
-                        return
-                    else:
-                        self.Klen = len(firstline[0])
+                    if len(firstline[0]) != 0:
+                        if self.Klen != -1 and self.Klen != len(firstline[0]):
+                            ftmp.close()
+                            self.status = -80
+                            self.loginfo = 'K value error.'
+                            return
+                        else:
+                            self.Klen = len(firstline[0])
+                    else:   # fill beacon
+                        f_beacon_tmp = open(os.path.join(self.kmc_result_path, i), 'w')
+                        f_beacon_tmp.write('beacon:\n')
+                        for k in range(256):
+                            f_beacon_tmp.write('0\n')
+                        f_beacon_tmp.write('sum:\n0\n')
+                        f_beacon_tmp.close()
                     ftmp.close()
         except:
             self.status = -3
@@ -286,7 +309,10 @@ class GM_Thread(threading.Thread):
         if os.path.exists('temp') == False:
             os.mkdir('temp')
         for i in range(self.process_number):
-            self.beacon_block_list.append(round(i * 256 / self.process_number))
+            if self.process_number >= 40:
+                self.beacon_block_list.append(round(i * 256 / self.process_number))
+            else:
+                self.beacon_block_list.append(distribute_kmer_nonuniformly(0, round(i * 10000 / self.process_number), 10000, 0))
             # the progress file
             fprogress = open(os.path.join('temp', 'GM_progress' + str(self.beacon_block_list[i]) + ' 0'), 'w')
             fprogress.close()
@@ -337,19 +363,6 @@ class GM_Thread(threading.Thread):
                 fre_sum[i] = fre_sum[i] / (10 ** tmp)
             elif tmp < 0:
                 fre_sum[i] = fre_sum[i] * (10 ** -tmp)
-
-        # output the normalization coefficients
-        f_NC = open('normalization_coefficients.txt', 'w')
-        for i in self.head_list:
-            if i == 'k-mer':
-                f_NC.write('sample')
-            else:
-                f_NC.write('\t' + i)
-        f_NC.write('\nnormalization coefficient')
-        for i in fre_sum:
-            f_NC.write('\t' + str(i))
-        f_NC.write('\n')
-        f_NC.close()
 
         # the multiprocess runs
         process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen,
