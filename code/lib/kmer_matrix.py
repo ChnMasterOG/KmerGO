@@ -364,6 +364,19 @@ class GM_Thread(threading.Thread):
             elif tmp < 0:
                 fre_sum[i] = fre_sum[i] * (10 ** -tmp)
 
+        # output the normalization coefficients
+        f_NC = open('normalization_coefficients.txt', 'w')
+        for i in self.head_list:
+            if i == 'k-mer':
+                f_NC.write('sample')
+            else:
+                f_NC.write('\t' + i)
+        f_NC.write('\nnormalization coefficient')
+        for i in fre_sum:
+            f_NC.write('\t' + str(i))
+        f_NC.write('\n')
+        f_NC.close()
+
         # the multiprocess runs
         process_param = [self.gm_result_path, self.beacon_path_list, self.path_list, self.Klen,
                          len(self.path_list), self.head_list, self.A_Name, self.A_Number, self.TI_dic, self.KofZ,
