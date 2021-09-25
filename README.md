@@ -212,6 +212,12 @@ SRR3,5.22
 
 KmerGO will normalize the K-mer counting to the level of 10^-4 and output the normalization coefficients of each sample at the "Module 2".
 
+## Pair-end Sequencing Data
+
+Pair-end sequencing data is now supported by KmerGO(version >= 1.5.0b1). You can use the following file format:
+
+A1.fasta.gz A1_1.fasta.gz, A2.fasta.gz A2_1.fasta.gz, ... , B1.fasta.gz B1_1.fasta.gz, ...
+
 ## Contacts and bug reports
 
 Please send bug reports, comments, or questions to
@@ -222,4 +228,4 @@ Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2021-05-12
+Last update: 2021-09-25

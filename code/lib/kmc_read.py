@@ -1,7 +1,7 @@
 # coding = utf-8
 # author: QiChen
-# version: v3.0
-# modification date: 2020/10/5
+# version: v3.1
+# modification date: 2021/9/25
 
 import os, sys, shutil
 import subprocess
@@ -58,52 +58,74 @@ class KMC_Thread(threading.Thread):
             if dir == work_dir:
                 flist = file
         flist.sort()
+        kmc_input = []
+        if len(flist) == 0:
+            return -2  # no files in this directory
         for i in list(flist):
-            suffix = i[i.find('.'):]
+            dot_pos = i.find('.')
+            suffix = i[dot_pos:]
+            is_pairend = i[dot_pos-2:dot_pos] == "_1"
             if suffix.lower() in FASTA_suffix:
                 typelist.append(' -fm ')
-                flist[flist.index(i)] = [i[:i.find('.')], os.path.join(work_dir, i)]
             elif suffix.lower() in FASTQ_suffix:
                 typelist.append(' -fq ')
-                flist[flist.index(i)] = [i[:i.find('.')], os.path.join(work_dir, i)]
             else:
-                flist.remove(i)
-            if len(flist) == 0:
-                return -2  # no files in this directory
+                continue
+            if is_pairend == False:
+                kmc_input.append(i)
+            else:
+                typelist = typelist[:-1]
+                pair_1_name = i[:dot_pos-2] + i[dot_pos:]
+                if pair_1_name in kmc_input:
+                    kmc_input[kmc_input.index(pair_1_name)] = "@" + i[:dot_pos-2] + ".list"
+                    listf = open(os.path.join(work_dir, i[:dot_pos-2] + ".list"), 'w')
+                    listf.write(os.path.join(work_dir, pair_1_name) + '\n')
+                    listf.write(os.path.join(work_dir, i) + '\n')
+                    listf.close()
 
         countings = 0
-        self.loginfo = 'Number 0/' + str(len(flist))
-        for i in range(len(flist)):
+        self.loginfo = 'Number 0/' + str(len(kmc_input))
+        for i in range(len(kmc_input)):
+            if kmc_input[i][0] == '@':
+                prechar = '@'
+                kmc_input[i] = kmc_input[i][1:]
+            else:
+                prechar = ''
+            kmerdb_name = kmc_input[i][:kmc_input[i].find('.')]
             countings += 1
             cmd = kmc_command + ' -k' + str(k_value) + ' -ci' + str(ci_value) + ' -cs' + str(cs_value)\
-                  + typelist[i] + flist[i][1] + ' ' + os.path.join(work_dir, flist[i][0])\
+                  + typelist[i] + prechar + os.path.join(work_dir, kmc_input[i]) + ' ' + os.path.join(work_dir, kmerdb_name)\
                   + ' ' + work_dir
             r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
             if r != 0:
                 return 0 / 0
             if k_value >= 14:
-                cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir, flist[i][0])\
-                      + ' sort ' + os.path.join(work_dir, flist[i][0] + '_sort')
+                cmd = kmc_tools_command + ' transform ' + os.path.join(work_dir, kmerdb_name)\
+                      + ' sort ' + os.path.join(work_dir, kmerdb_name + '_sort')
                 r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
                 if r != 0:
                     return 0 / 0
             else:
-                shutil.copyfile(os.path.join(work_dir, flist[i][0] + '.kmc_pre'), os.path.join(work_dir, flist[i][0] + '_sort.kmc_pre'))
-                shutil.copyfile(os.path.join(work_dir, flist[i][0] + '.kmc_suf'), os.path.join(work_dir, flist[i][0] + '_sort.kmc_suf'))
+                shutil.copyfile(os.path.join(work_dir, kmerdb_name + '.kmc_pre'), os.path.join(work_dir, kmerdb_name + '_sort.kmc_pre'))
+                shutil.copyfile(os.path.join(work_dir, kmerdb_name + '.kmc_suf'), os.path.join(work_dir, kmerdb_name + '_sort.kmc_suf'))
             cmd = kmc_dump_command + ' -cs' + str(cs_value) + ' '\
-                  + os.path.join(work_dir, flist[i][0] + '_sort') + ' '\
-                  + os.path.join(output_dir, flist[i][0] + '.txt') + ' '\
-                  + os.path.join(output_dir, flist[i][0] + '_beacon.txt')
+                  + os.path.join(work_dir, kmerdb_name + '_sort') + ' '\
+                  + os.path.join(output_dir, kmerdb_name + '.txt') + ' '\
+                  + os.path.join(output_dir, kmerdb_name + '_beacon.txt')
             r = subprocess.call(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
             if r != 0:
                 return 0 / 0
-            os.remove(os.path.join(work_dir, flist[i][0] + '.kmc_pre'))
-            os.remove(os.path.join(work_dir, flist[i][0] + '.kmc_suf'))
-            os.remove(os.path.join(work_dir, flist[i][0] + '_sort.kmc_pre'))
-            os.remove(os.path.join(work_dir, flist[i][0] + '_sort.kmc_suf'))
-            self.loginfo = 'Number ' + str(countings) + '/' +  str(len(flist))
+            os.remove(os.path.join(work_dir, kmerdb_name + '.kmc_pre'))
+            os.remove(os.path.join(work_dir, kmerdb_name + '.kmc_suf'))
+            os.remove(os.path.join(work_dir, kmerdb_name + '_sort.kmc_pre'))
+            os.remove(os.path.join(work_dir, kmerdb_name + '_sort.kmc_suf'))
+            self.loginfo = 'Number ' + str(countings) + '/' +  str(len(kmc_input))
+
+            # clear listf
+            if prechar == '@':
+                os.remove(os.path.join(work_dir, kmc_input[i]))
 
         return 0
