@@ -262,6 +262,7 @@ class myWindow(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         try:
             csv_f = open(getdir, 'r')
             reader = csv.reader(csv_f)
+            self.projectfile.TI_dic = {}
             for row in reader:
                 if row[1] == 'trait':
                     continue
