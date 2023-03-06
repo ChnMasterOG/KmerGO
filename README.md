@@ -222,12 +222,14 @@ A1.fasta.gz A1_1.fasta.gz, A2.fasta.gz A2_1.fasta.gz, ... , B1.fasta.gz B1_1.fas
 
 ## Contacts and bug reports
 
-Please send bug reports, comments, or questions to
+Please send bug reports, comments, or questions to [here](https://github.com/ChnMasterOG/KmerGO/issues).
+
+or email to
 
 Prof. Ying Wang: [wangying@xmu.edu.cn](mailto:wangying@xmu.edu.cn)
 
-Qi Chen: [23220191151291@stu.xmu.edu.cn](mailto:23220191151291@stu.xmu.edu.cn)
+Wenhao Zhang: [23220210156258@stu.xmu.edu.cn](mailto:23220210156258@stu.xmu.edu.cn)
 
 ----------
 
-Last update: 2021-09-25
+Last update: 2023-03-06
